@@ -1,0 +1,6 @@
+dark blue #496076
+cyan #c1f1dc  for text
+bg color #d0dce7
+
+section/column color f7f7f7
+black text color #333333
