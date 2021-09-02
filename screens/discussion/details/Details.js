@@ -40,8 +40,6 @@ const Details = () => {
                                 <Icon type="evilicon" name="like" color="#333333" size={30} onPress={()=>{}} style={styles.playIcon}/>
                         </View>
                     </View>
-
-
                     <View style={styles.cardHolder}>
                         <View style={styles.topSection}>
                             <View style={styles.voiceHolder}>
@@ -121,12 +119,15 @@ const Details = () => {
                                 <Text style={styles.textColor} >here some text and onther this from the message </Text>
                         </View>
                         <View style={styles.votesHolder}>
-                                <Text style={styles.percentage}>60%</Text>
-                                <Icon type="evilicon" name="like" color="#333333" size={30} onPress={()=>{}} style={styles.playIcon}/>
+                            <Text style={styles.percentage}>60%</Text>
+                            <Icon type="evilicon" name="like" color="#333333" size={30} onPress={()=>{}} style={styles.playIcon}/>
                         </View>
                     </View>
-
+                    <View style={{height:100}}></View>
                     </ScrollView>
+                </View>
+                <View style={styles.micHolder}>
+                    <Icon type="ionicon" name="mic-circle-sharp" size={60} color={'#496076'} />
                 </View>
                 <Footer />
             </View>
@@ -188,6 +189,11 @@ const styles = StyleSheet.create({
         fontSize:12,
         color:'#333333',
         paddingTop:4,
+    },
+    micHolder:{
+        position:'absolute',
+        right:10,
+        bottom:70,
     }
 });
 

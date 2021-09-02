@@ -54,6 +54,16 @@ const ClubFollow = () => {
                     <Text style={styles.clubName}>@Karathode_health</Text>
                     <Text>100 Followers</Text>
                 </View>
+                <View style={styles.clubItem}>
+                    <Image
+                        style={styles.clubDP}
+                        source={{
+                            uri: 'https://reactnative.dev/img/tiny_logo.png',
+                        }}
+                    />
+                    <Text style={styles.clubName}>@Hudaii</Text>
+                    <Text>100 Followers</Text>
+                </View>
                 <View style={styles.moreIcon}>
                 <Icon type="feather" name="more-horizontal" color="#496076" size={50}/>
                 </View>
@@ -66,7 +76,8 @@ export default ClubFollow
 const styles = StyleSheet.create({
     container:{
         marginHorizontal:5,
-        marginVertical:10,
+        marginBottom:20,
+        marginTop:5,
         backgroundColor:'#f7f7f7',
         borderRadius:20,
         borderWidth:1,
@@ -78,11 +89,13 @@ const styles = StyleSheet.create({
         width:30,
         height:30,
         resizeMode:'contain',
+        borderRadius:10,
     },
     clubHolder:{
         flexDirection:'row',
         flexWrap:'wrap',
-        alignItems:'center'
+        alignItems:'center',
+        justifyContent:'space-evenly',
     },
     clubItem:{
         flexDirection:'column',

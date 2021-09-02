@@ -6,7 +6,7 @@ const ClubAdmin = () => {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.title}>Clubs that you are admin at</Text>
+                <Text style={styles.title}>Clubs you are admin at</Text>
                 <Icon type="ionicon" name="ios-open-outline" color="#496076" size={30}/>
             </View>
             <View style={styles.clubHolder}>
@@ -77,11 +77,13 @@ const styles = StyleSheet.create({
         width:30,
         height:30,
         resizeMode:'contain',
+        borderRadius:10,
     },
     clubHolder:{
         flexDirection:'row',
         flexWrap:'wrap',
-        alignItems:'center'
+        alignItems:'center',
+        justifyContent:'space-evenly',
     },
     clubItem:{
         flexDirection:'column',

@@ -5,7 +5,6 @@ import {Icon} from 'react-native-elements'
 const ClubOwn = () => {
     return (
         <View style={styles.container}>
- 
             <View style={styles.clubMeta}>
                 <View>
                     <Image
@@ -74,6 +73,8 @@ const styles = StyleSheet.create({
         paddingHorizontal:5,
         paddingVertical:2,
         borderRadius:10,
+        borderWidth:1,
+        borderColor:'#fff',
     },
     activityHolder:{
         flexDirection:'row',
