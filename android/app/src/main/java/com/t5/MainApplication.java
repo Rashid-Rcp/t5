@@ -1,5 +1,5 @@
 package com.t5;
-
+import com.t5.generated.BasePackageList; //added
 import android.app.Application;
 import android.content.Context;
 import com.facebook.react.PackageList;
@@ -11,7 +11,14 @@ import com.facebook.soloader.SoLoader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 //import com.oblador.vectoricons.VectorIconsPackage;//added
+import java.util.Arrays; //added
+import org.unimodules.adapters.react.ModuleRegistryAdapter; //added
+import org.unimodules.adapters.react.ReactModuleRegistryProvider;  //added
+
 public class MainApplication extends Application implements ReactApplication {
+
+  private final ReactModuleRegistryProvider mModuleRegistryProvider = 
+   new ReactModuleRegistryProvider(new BasePackageList().getPackageList(), null); //added
 
   private final ReactNativeHost mReactNativeHost =
       new ReactNativeHost(this) {
@@ -27,6 +34,12 @@ public class MainApplication extends Application implements ReactApplication {
           // Packages that cannot be autolinked yet can be added manually here, for example:
           // packages.add(new MyReactNativePackage());
           // packages.add(new VectorIconsPackage()); //added
+
+           // Add unimodules
+          List<ReactPackage> unimodules = Arrays.<ReactPackage>asList(
+            new ModuleRegistryAdapter(mModuleRegistryProvider)
+          ); //added
+          packages.addAll(unimodules); //added
           
           return packages;
         }
