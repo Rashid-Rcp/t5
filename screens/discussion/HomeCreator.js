@@ -2,14 +2,17 @@ import React from 'react'
 import { View, Text, StyleSheet,StatusBar, ScrollView,TouchableOpacity } from 'react-native'
 import Header from '../common/Header';
 import {Icon} from 'react-native-elements'
-
+import ClubForm from '../common/club/ClubForm';
+import ClubMembers from '../common/club/ClubMembers';
 const HomeCreator = () => {
     return (
         <View style={styles.mainContainer}>
             <StatusBar />
             <Header />
             <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator ={false}>
-                <View style={styles.topicHolder}>
+                {/* <ClubForm/> */}
+                <ClubMembers/>
+                {/* <View style={styles.topicHolder}>
                     <Text style={styles.topicTitle}>
                         here is the title of the topic and some ideas about it and what it is
                     </Text>
@@ -166,7 +169,7 @@ const HomeCreator = () => {
                             <Text style={styles.manageButtonText}>Manage</Text>
                         </TouchableOpacity>
                     </View>
-                </View>
+                </View> */}
 
                 <View style={{height:100}}></View>
                 
