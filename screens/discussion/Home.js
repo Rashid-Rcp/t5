@@ -1,22 +1,28 @@
-import React from 'react'
-import { View, Text, StyleSheet,StatusBar, ScrollView } from 'react-native'
+import React,{useContext} from 'react'
+import { View, Text, StyleSheet,StatusBar, ScrollView,TouchableOpacity } from 'react-native'
 import Header from '../common/Header';
 import Footer from '../common/Footer';
 
-const Home = () => {
+import { UserContext } from '../../context/UserContext';
+const Home = ({navigation}) => {
+
+  const [user,setUser] = useContext(UserContext);
+ 
     return (
         <View style={styles.mainContainer}>
             <StatusBar />
-            <Header />
+            <Header navigation={navigation}/>
             <View style={styles.container}>
             <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}  onScroll={event=>{handleScroll(event)}}>
-            <View style={styles.contentItem}>
-              <Text style={styles.itemTitle}>What are the important thing to notice while developing a prototype?</Text>
-              <View style={styles.itemMeta}>
-                <Text style={styles.metaText}>10 hrs ago</Text>
-                <Text style={styles.metaText}>@startup_health</Text>
-                <View style={styles.metaStatus}><Text  style={styles.metaText}>Open</Text></View>
-              </View>
+             <View style={styles.contentItem}>
+               <TouchableOpacity onPress={()=>{navigation.navigate('DiscussionDetails')}}>
+                <Text style={styles.itemTitle}>What are the important thing to notice while developing a prototype?</Text>
+                <View style={styles.itemMeta}>
+                  <Text style={styles.metaText}>10 hrs ago</Text>
+                  <Text style={styles.metaText}>@startup_health</Text>
+                  <View style={styles.metaStatus}><Text  style={styles.metaText}>Open</Text></View>
+                </View>
+              </TouchableOpacity>
             </View>
             <View style={styles.contentItem}>
               <Text style={styles.itemTitle}>What are the important thing to notice while developing a prototype?</Text>

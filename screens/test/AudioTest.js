@@ -2,11 +2,12 @@ import React,{useState, useEffect, useCallback} from 'react'
 import { View, Text,StyleSheet, TouchableOpacity,Button, PermissionsAndroid } from 'react-native'
 // import { Constants } from 'react-native-unimodules';
 import { Audio } from 'expo-av';
-import {Icon} from 'react-native-elements'
+import {Icon} from 'react-native-elements';
 import * as MediaLibrary from 'expo-media-library';
 import * as FileSystem from 'expo-file-system';
-import RNFetchBlob from 'react-native-fetch-blob';
+//import RNFetchBlob from 'rn-fetch-blob';
 import RangeSlider from 'rn-range-slider';
+
 import Thumb  from './Thumb';
 import Rail from './Rail';
 import RailSelected from './RailSelected';

@@ -1,62 +1,71 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
+import React,{useEffect,useState} from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {default as DiscussionHome} from './screens/discussion/Home';
+import {default as DiscussionDetails} from './screens/discussion/details/Details';
+import {default as DiscussionCreatorHome} from './screens/discussion/HomeCreator';
 
-import React from 'react';
-//import type {Node} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { UserProvider } from './context/UserContext';
+import * as SecureStore from 'expo-secure-store';
 
-const App = () => {
+const DiscussionStack = createNativeStackNavigator();
+const DiscussionCreatorStack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
+
+function discussionCreatorStackScreen(){
   return (
-    <SafeAreaView>
-      <StatusBar />
-      <ScrollView contentInsetAdjustmentBehavior="automatic">
-        <View>
-          <Text style={styles.txtFont}>Al text example</Text>
-          <Text style={styles.txtFont2}>Al text example</Text>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+  <DiscussionCreatorStack.Navigator>
+    <DiscussionCreatorStack.Screen name="DiscussionCreatorHome" component={DiscussionCreatorHome} options={{headerShown:false}} />
+    <DiscussionCreatorStack.Screen name="DiscussionCreator2" component={DiscussionCreatorHome} options={{headerShown:false}} />
+  </DiscussionCreatorStack.Navigator>
+  )
+}
+function discussionStackScreen(){
+  return (
+    <DiscussionStack.Navigator>
+      <DiscussionStack.Screen name="DiscussionHome"  component={DiscussionHome} options={{headerShown:false}}/>
+      <DiscussionStack.Screen name="DiscussionDetails" component={DiscussionDetails} options={{headerShown:false}}/>
+    </DiscussionStack.Navigator>
   );
-};
+}
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '400',
-    //fontFamily: '',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  txtFont: {
-    fontFamily: 'roboto_regular',
-    fontSize: 40,
-  },
-  txtFont2: {
-    fontFamily:'micross',
-    fontSize: 30,
-  },
-});
 
-export default App;
+export default function App() {
+
+  global.APILink = 'http://192.168.43.50:80/t5-laravel/t5-app/public/api';
+
+  const[initial,setInitial] = useState('');
+  useEffect(()=>{
+    const getInitialScreen = async ()=>{
+      try{
+        const activeTab = await SecureStore.getItemAsync('t5_active_tab');
+        if(activeTab){
+          setInitial(activeTab);
+        }
+        else{
+          setInitial('discussionNormal'); 
+        }
+      }
+      catch(e){
+        console.log(e);
+      }
+    }
+    getInitialScreen();
+
+  },[])
+  if(!initial){
+    return (<></>);
+  }
+  return (
+    <UserProvider>
+    <NavigationContainer>
+      <Tab.Navigator tabBar={()=>{}}>
+        <Tab.Screen name="Initial" component={initial==='discussionNormal'?discussionStackScreen:discussionCreatorStackScreen} options={{headerShown:false}}/>
+        <Tab.Screen name="Discussion" component={discussionStackScreen} options={{headerShown:false}}/>
+        <Tab.Screen name="DiscussionCreator" component={discussionCreatorStackScreen} options={{headerShown:false}}/>
+      </Tab.Navigator>
+    </NavigationContainer>
+    </UserProvider>
+  );
+}

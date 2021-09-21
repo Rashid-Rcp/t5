@@ -1,15 +1,55 @@
 /* eslint-disable prettier/prettier */
-import React from 'react';
-import {View, Text, StyleSheet,Image} from 'react-native';
+import React,{useContext} from 'react';
+import {View, Text, StyleSheet,Image,TouchableOpacity} from 'react-native';
+import { UserContext } from '../../context/UserContext';
+import * as SecureStore from 'expo-secure-store';
 
-const Header = () => {
+const Header = ({navigation}) => {
+  const[user, setUser] = useContext(UserContext);
+  const handleDiscussionLongPress = async()=>{
+    let userData = {...user};
+    if(userData.discussionMode === 'normal'){
+      userData.discussionMode = 'creator';
+      userData.activeTab='discussionCreator';
+      await SecureStore.setItemAsync('t5_discussion_mode', 'creator');
+      await SecureStore.setItemAsync('t5_active_tab', 'discussionCreator');
+      setUser(userData);
+      navigation.navigate('DiscussionCreator');
+    }
+    else{
+      userData.discussionMode = 'normal';
+      userData.activeTab='discussionNormal';
+      await SecureStore.setItemAsync('t5_discussion_mode', 'normal');
+      await SecureStore.setItemAsync('t5_active_tab', 'discussionNormal');
+
+      setUser(userData);
+      navigation.navigate('Discussion');
+    }
+  }
+
+  const handleDiscussionPress =()=>{
+    let userData = {...user};
+    if(userData.discussionMode === 'normal'){
+      userData.activeTab='discussionNormal';
+      setUser(userData);
+      navigation.navigate('Discussion');
+    }
+    else{
+      userData.activeTab='discussionCreator';
+      setUser(userData);
+      navigation.navigate('DiscussionCreator');
+    }
+  }
+  
   return (
     <View style={styles.headerContainer}>
-      <View style={[styles.iconHolder,styles.selected]}>
+      <View style={[styles.iconHolder,user.activeTab==='discussionNormal'?{backgroundColor:'#f7f7f7'}:'#A9F2FB']}>
+        <TouchableOpacity onLongPress={handleDiscussionLongPress} onPress={handleDiscussionPress}>
         <Image
           style={styles.headerIcon}
           source={require('../../assets/images/discussion-icon-t5.png')}
         />
+        </TouchableOpacity>
       </View>
      
       <View style={styles.iconHolder}>
@@ -81,7 +121,7 @@ const styles = StyleSheet.create({
       
     },
     selected:{
-      backgroundColor:'#f7f7f7',
+      backgroundColor:'#A9F2FB',
     }
 
 });

@@ -12,7 +12,8 @@ public class BasePackageList {
         new expo.modules.contacts.ContactsPackage(),
         new expo.modules.filesystem.FileSystemPackage(),
         new expo.modules.imageloader.ImageLoaderPackage(),
-        new expo.modules.medialibrary.MediaLibraryPackage()
+        new expo.modules.medialibrary.MediaLibraryPackage(),
+        new expo.modules.securestore.SecureStorePackage()
     );
   }
 }

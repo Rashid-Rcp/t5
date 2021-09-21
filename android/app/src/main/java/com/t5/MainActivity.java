@@ -1,7 +1,7 @@
 package com.t5;
 
 import com.facebook.react.ReactActivity;
-
+import android.os.Bundle;
 public class MainActivity extends ReactActivity {
 
   /**
@@ -11,5 +11,10 @@ public class MainActivity extends ReactActivity {
   @Override
   protected String getMainComponentName() {
     return "t5";
+  }
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(null);
   }
 }

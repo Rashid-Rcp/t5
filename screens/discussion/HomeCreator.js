@@ -1,15 +1,43 @@
-import React from 'react'
+import React,{useContext,useEffect,useState} from 'react'
 import { View, Text, StyleSheet,StatusBar, ScrollView,TouchableOpacity } from 'react-native'
-import Header from '../common/Header';
 import {Icon} from 'react-native-elements'
+
+import { UserContext } from '../../context/UserContext';
+import Header from '../common/Header';
+import LoginForm from '../common/LoginForm';
 import ClubForm from '../common/club/ClubForm';
 import ClubMembers from '../common/club/ClubMembers';
-const HomeCreator = () => {
+
+import axios from 'axios';
+
+const HomeCreator = ({navigation}) => {
+    const[user,setUser] = useContext(UserContext);
+    const[club, setClub] = useState();
+
+    useEffect(()=>{
+     axios.get(global.APILink+'/test')
+     .then(res=>{
+       console.log(res.data)
+     })
+     .catch(err=>{console.log(err)})
+    },[])
+    if(user.id==='0'){
+      return (
+        <View style={styles.mainContainer}>
+          <StatusBar />
+            <Header navigation={navigation}/>
+            <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator ={false}>
+                <LoginForm/>
+            </ScrollView>
+        </View>
+      )
+    }
     return (
         <View style={styles.mainContainer}>
             <StatusBar />
-            <Header />
+            <Header navigation={navigation}/>
             <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator ={false}>
+
                 {/* <ClubForm/> */}
                 <ClubMembers/>
                 {/* <View style={styles.topicHolder}>
