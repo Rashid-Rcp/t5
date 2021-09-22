@@ -7,6 +7,7 @@ export const UserProvider = (props)=>{
 
     const [user, setUser] = useState({
         'id':'0',
+        'loaded':false,
         'discussionMode':'normal',
         'activeTab':'discussionNormal'
 
@@ -16,16 +17,20 @@ export const UserProvider = (props)=>{
 
         const get_user = async()=>{
             try {
-              //  const user_id = await SecureStore.getItemAsync('t4_user_id');
+                //const user_id = await SecureStore.getItemAsync('t5_user_id');
                 const discussionMode = await SecureStore.getItemAsync('t5_discussion_mode');
                 const activeTab = await SecureStore.getItemAsync('t5_active_tab');
                 let userData = {...user};
+                // if(user_id){
+                //     userData.id = user_id;
+                // }
                 if(discussionMode) {
                     userData.discussionMode = discussionMode;
                 }
                 if(activeTab){
                     userData.activeTab = activeTab;
                 }
+                userData.loaded=true;
                 setUser(userData);
               } catch (e) {
                 console.log(e);

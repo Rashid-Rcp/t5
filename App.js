@@ -5,7 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {default as DiscussionHome} from './screens/discussion/Home';
 import {default as DiscussionDetails} from './screens/discussion/details/Details';
 import {default as DiscussionCreatorHome} from './screens/discussion/HomeCreator';
-
+import Account from './screens/account/Account'
 import { UserProvider } from './context/UserContext';
 import * as SecureStore from 'expo-secure-store';
 
@@ -64,6 +64,7 @@ export default function App() {
         <Tab.Screen name="Initial" component={initial==='discussionNormal'?discussionStackScreen:discussionCreatorStackScreen} options={{headerShown:false}}/>
         <Tab.Screen name="Discussion" component={discussionStackScreen} options={{headerShown:false}}/>
         <Tab.Screen name="DiscussionCreator" component={discussionCreatorStackScreen} options={{headerShown:false}}/>
+        <Tab.Screen name="Account" component={Account} options={{headerShown:false}}/>
       </Tab.Navigator>
     </NavigationContainer>
     </UserProvider>

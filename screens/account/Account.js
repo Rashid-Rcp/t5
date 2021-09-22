@@ -1,12 +1,12 @@
 import React from 'react'
-import { View, Text,StyleSheet,ScrollView } from 'react-native'
+import { View, Text,StyleSheet,ScrollView,TouchableOpacity, Touchable } from 'react-native'
 import Header from './Header'
 import Profile from './Profile'
 import ClubOwn from './ClubOwn'
 import ClubAdmin from './ClubAdmin'
 import ClubFollow from './ClubFollow'
 
-const Account = () => {
+const Account = ({navigation}) => {
     return (
         <View style={styles.container}>
            <Header/>

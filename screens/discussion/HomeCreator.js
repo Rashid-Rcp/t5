@@ -14,20 +14,16 @@ const HomeCreator = ({navigation}) => {
     const[user,setUser] = useContext(UserContext);
     const[club, setClub] = useState();
 
-    useEffect(()=>{
-     axios.get(global.APILink+'/test')
-     .then(res=>{
-       console.log(res.data)
-     })
-     .catch(err=>{console.log(err)})
-    },[])
-    if(user.id==='0'){
+    if(!user.loaded){
+        return (<></>);
+    }
+    if( user.loaded && user.id==='0'){
       return (
         <View style={styles.mainContainer}>
           <StatusBar />
             <Header navigation={navigation}/>
-            <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator ={false}>
-                <LoginForm/>
+            <ScrollView showsHorizontalScrollIndicator= {false} showsVerticalScrollIndicator ={false}>
+                <LoginForm navigation={navigation}/>
             </ScrollView>
         </View>
       )
