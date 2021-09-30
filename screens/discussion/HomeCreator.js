@@ -1,7 +1,7 @@
 import React,{useContext,useEffect,useState} from 'react'
 import { View, Text, StyleSheet,StatusBar, ScrollView,TouchableOpacity } from 'react-native'
 import {Icon} from 'react-native-elements'
-
+import Spinner from 'react-native-loading-spinner-overlay';
 import { UserContext } from '../../context/UserContext';
 import Header from '../common/Header';
 import LoginForm from '../common/LoginForm';
@@ -14,8 +14,15 @@ const HomeCreator = ({navigation}) => {
     const[user,setUser] = useContext(UserContext);
     const[club, setClub] = useState();
 
+    useEffect(()=>{
+        if(user.loaded && user.clubId === '0'){
+            navigation.navigate('CreateClub',{backTo:'DiscussionCreatorHome'});
+        }
+    },[user])
     if(!user.loaded){
-        return (<></>);
+        return (<View style={{flex:1,justifyContent:'center',alignItems:'center',backgroundColor:'#d0dce7'}}>
+        <Text>Loading...</Text>
+        </View>);
     }
     if( user.loaded && user.id==='0'){
       return (
@@ -28,15 +35,14 @@ const HomeCreator = ({navigation}) => {
         </View>
       )
     }
-    return (
+    
+    if(user.loaded && user.clubId !== '0'){
+        return (
         <View style={styles.mainContainer}>
             <StatusBar />
             <Header navigation={navigation}/>
             <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator ={false}>
-
-                {/* <ClubForm/> */}
-                <ClubMembers/>
-                {/* <View style={styles.topicHolder}>
+                 <View style={styles.topicHolder}>
                     <Text style={styles.topicTitle}>
                         here is the title of the topic and some ideas about it and what it is
                     </Text>
@@ -61,142 +67,7 @@ const HomeCreator = ({navigation}) => {
                         </TouchableOpacity>
                     </View>
                 </View>
-
-                <View style={styles.topicHolder}>
-                    <Text style={styles.topicTitle}>
-                        here is the title of the topic and some ideas about it and what it is
-                    </Text>
-                    <View style={styles.topicMetaHolder}>
-                        <View style={styles.topicStatus}>
-                                <Text style={styles.metaText}>Open</Text>
-                        </View> 
-                        <View style={styles.topicMeta}>
-                            <Text style={styles.metaText}>100 Messages</Text>
-                        </View>
-                        <View style={styles.topicMeta}>
-                            <Text style={styles.metaText}>200 Votes</Text>
-                        </View>
-                        <View style={styles.topicMeta}>
-                            <Text style={styles.metaText}>125 Comments</Text>
-                        </View>
-                    </View>
-                    <View style={styles.topicBottom}>
-                        <Text style={styles.topicTime}>5 hrs ago</Text>
-                        <TouchableOpacity style={styles.manageButton}>
-                            <Text style={styles.manageButtonText}>Manage</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-
-
-                <View style={styles.topicHolder}>
-                    <Text style={styles.topicTitle}>
-                        here is the title of the topic and some ideas about it and what it is
-                    </Text>
-                    <View style={styles.topicMetaHolder}>
-                        <View style={styles.topicStatus}>
-                                <Text style={styles.metaText}>Open</Text>
-                        </View> 
-                        <View style={styles.topicMeta}>
-                            <Text style={styles.metaText}>100 Messages</Text>
-                        </View>
-                        <View style={styles.topicMeta}>
-                            <Text style={styles.metaText}>200 Votes</Text>
-                        </View>
-                        <View style={styles.topicMeta}>
-                            <Text style={styles.metaText}>125 Comments</Text>
-                        </View>
-                    </View>
-                    <View style={styles.topicBottom}>
-                        <Text style={styles.topicTime}>5 hrs ago</Text>
-                        <TouchableOpacity style={styles.manageButton}>
-                            <Text style={styles.manageButtonText}>Manage</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-
-                <View style={styles.topicHolder}>
-                    <Text style={styles.topicTitle}>
-                        here is the title of the topic and some ideas about it and what it is
-                    </Text>
-                    <View style={styles.topicMetaHolder}>
-                        <View style={styles.topicStatus}>
-                                <Text style={styles.metaText}>Open</Text>
-                        </View> 
-                        <View style={styles.topicMeta}>
-                            <Text style={styles.metaText}>100 Messages</Text>
-                        </View>
-                        <View style={styles.topicMeta}>
-                            <Text style={styles.metaText}>200 Votes</Text>
-                        </View>
-                        <View style={styles.topicMeta}>
-                            <Text style={styles.metaText}>125 Comments</Text>
-                        </View>
-                    </View>
-                    <View style={styles.topicBottom}>
-                        <Text style={styles.topicTime}>5 hrs ago</Text>
-                        <TouchableOpacity style={styles.manageButton}>
-                            <Text style={styles.manageButtonText}>Manage</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-
-
-                <View style={styles.topicHolder}>
-                    <Text style={styles.topicTitle}>
-                        here is the title of the topic and some ideas about it and what it is
-                    </Text>
-                    <View style={styles.topicMetaHolder}>
-                        <View style={styles.topicStatus}>
-                                <Text style={styles.metaText}>Open</Text>
-                        </View> 
-                        <View style={styles.topicMeta}>
-                            <Text style={styles.metaText}>100 Messages</Text>
-                        </View>
-                        <View style={styles.topicMeta}>
-                            <Text style={styles.metaText}>200 Votes</Text>
-                        </View>
-                        <View style={styles.topicMeta}>
-                            <Text style={styles.metaText}>125 Comments</Text>
-                        </View>
-                    </View>
-                    <View style={styles.topicBottom}>
-                        <Text style={styles.topicTime}>5 hrs ago</Text>
-                        <TouchableOpacity style={styles.manageButton}>
-                            <Text style={styles.manageButtonText}>Manage</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-
-
-                <View style={styles.topicHolder}>
-                    <Text style={styles.topicTitle}>
-                        here is the title of the topic and some ideas about it and what it is
-                    </Text>
-                    <View style={styles.topicMetaHolder}>
-                        <View style={styles.topicStatus}>
-                                <Text style={styles.metaText}>Open</Text>
-                        </View> 
-                        <View style={styles.topicMeta}>
-                            <Text style={styles.metaText}>100 Messages</Text>
-                        </View>
-                        <View style={styles.topicMeta}>
-                            <Text style={styles.metaText}>200 Votes</Text>
-                        </View>
-                        <View style={styles.topicMeta}>
-                            <Text style={styles.metaText}>125 Comments</Text>
-                        </View>
-                    </View>
-                    <View style={styles.topicBottom}>
-                        <Text style={styles.topicTime}>5 hrs ago</Text>
-                        <TouchableOpacity style={styles.manageButton}>
-                            <Text style={styles.manageButtonText}>Manage</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View> */}
-
                 <View style={{height:100}}></View>
-                
             </ScrollView>
             <View style={styles.addNew}>
                 <Icon type='ionicon' name='ios-add-circle-sharp' size={50} color={'#496076'}/>
@@ -204,6 +75,13 @@ const HomeCreator = ({navigation}) => {
                 
         </View>
     )
+    }
+    else {
+        return (<View style={{flex:1,justifyContent:'center',alignItems:'center',backgroundColor:'#d0dce7'}}>
+        <Text>Loading...</Text>
+        </View>);
+    }
+  
 }
 
 export default HomeCreator

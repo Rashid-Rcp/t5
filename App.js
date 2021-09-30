@@ -6,6 +6,7 @@ import {default as DiscussionHome} from './screens/discussion/Home';
 import {default as DiscussionDetails} from './screens/discussion/details/Details';
 import {default as DiscussionCreatorHome} from './screens/discussion/HomeCreator';
 import Account from './screens/account/Account'
+import ClubForm from './screens/common/club/ClubForm';
 import { UserProvider } from './context/UserContext';
 import * as SecureStore from 'expo-secure-store';
 
@@ -17,7 +18,8 @@ function discussionCreatorStackScreen(){
   return (
   <DiscussionCreatorStack.Navigator>
     <DiscussionCreatorStack.Screen name="DiscussionCreatorHome" component={DiscussionCreatorHome} options={{headerShown:false}} />
-    <DiscussionCreatorStack.Screen name="DiscussionCreator2" component={DiscussionCreatorHome} options={{headerShown:false}} />
+    <DiscussionCreatorStack.Screen name="CreateClub" component={ClubForm} options={{headerShown:false}} />
+
   </DiscussionCreatorStack.Navigator>
   )
 }
@@ -34,6 +36,7 @@ function discussionStackScreen(){
 export default function App() {
 
   global.APILink = 'http://192.168.43.50:80/t5-laravel/t5-app/public/api';
+  global.Link = 'http://192.168.43.50:80/t5-laravel/t5-app/public';
 
   const[initial,setInitial] = useState('');
   useEffect(()=>{
