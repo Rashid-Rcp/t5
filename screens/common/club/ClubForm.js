@@ -124,18 +124,16 @@ const ClubForm = ({ route, navigation }) => {
             formData.append('clubType',clubType);
             axios.post(global.APILink+'/club/create',formData)
             .then(res=>{
-                console.log(res.data);
                 if(res.data.status === 'club_exist'){
                     let validationData = {...validation}
                     validationData.name = 'Club name is already exist'
-
                 }else if(res.data.status === 'success'){
                     let userData = {...user};
                     userData.clubId = res.data.club; 
                     setUser(userData);
                     setStep1Success(true);
                 } else{
-
+                    console.log('an error occurred');
                 }
                 setIsSubmitting(false)
             })

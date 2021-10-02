@@ -1,24 +1,26 @@
 import React,{useContext,useEffect,useState} from 'react'
 import { View, Text, StyleSheet,StatusBar, ScrollView,TouchableOpacity } from 'react-native'
-import {Icon} from 'react-native-elements'
-import Spinner from 'react-native-loading-spinner-overlay';
+import {Icon} from 'react-native-elements';
 import { UserContext } from '../../context/UserContext';
 import Header from '../common/Header';
 import LoginForm from '../common/LoginForm';
-import ClubForm from '../common/club/ClubForm';
-import ClubMembers from '../common/club/ClubMembers';
-
 import axios from 'axios';
 
-const HomeCreator = ({navigation}) => {
-    const[user,setUser] = useContext(UserContext);
-    const[club, setClub] = useState();
 
+const HomeCreator = ({navigation}) => {
+
+    const[user,setUser] = useContext(UserContext);
+    
     useEffect(()=>{
         if(user.loaded && user.clubId === '0'){
             navigation.navigate('CreateClub',{backTo:'DiscussionCreatorHome'});
         }
     },[user])
+
+    const handleSelectMembers = ()=>{
+
+    }
+
     if(!user.loaded){
         return (<View style={{flex:1,justifyContent:'center',alignItems:'center',backgroundColor:'#d0dce7'}}>
         <Text>Loading...</Text>
@@ -70,9 +72,8 @@ const HomeCreator = ({navigation}) => {
                 <View style={{height:100}}></View>
             </ScrollView>
             <View style={styles.addNew}>
-                <Icon type='ionicon' name='ios-add-circle-sharp' size={50} color={'#496076'}/>
+                <Icon type='ionicon' name='ios-add-circle-sharp' size={50} color={'#496076'} onPress={()=>navigation.navigate('AddNewDiscussion')}/>
             </View>
-                
         </View>
     )
     }
@@ -102,6 +103,9 @@ const styles = StyleSheet.create({
     topicTitle:{
         color:"#333333",
         fontSize:18,
+    },
+    textColor:{
+        color:'#333333'
     },
     topicMeta:{
         backgroundColor:"#7accc8",
@@ -152,6 +156,6 @@ const styles = StyleSheet.create({
         position:'absolute',
         bottom:10,
         right:10,
-      
-    }
+    },
+
 });
