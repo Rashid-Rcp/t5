@@ -204,7 +204,7 @@ const AudioTest = () => {
               onTouchEnd={onTouchEndHandle}
               onTouchStart = {onTouchStartHandle}
              // onValueChanged={handleOnValueChanged} 
-         />
+              />
              </View>
              <Button title="Save Sound" onPress={saveTOLocal} />
            
