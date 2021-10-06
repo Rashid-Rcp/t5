@@ -1,5 +1,5 @@
 import React,{useContext,useEffect,useState,useRef} from 'react'
-import { View, Text,Image, StyleSheet,StatusBar,ActivityIndicator, ScrollView,Keyboard,TouchableOpacity,TouchableWithoutFeedback } from 'react-native'
+import { View, Text,Image,StyleSheet,StatusBar,ActivityIndicator, ScrollView,Keyboard,TouchableOpacity,TouchableWithoutFeedback } from 'react-native'
 import {Icon, Input, CheckBox, Button} from 'react-native-elements';
 import { UserContext } from '../../context/UserContext';
 import axios from 'axios';
@@ -12,6 +12,7 @@ const AddNew = ({navigation}) => {
     const[addNewTopic, setAddNewTopic] = useState(true);
     const[topicClub, setTopicClub] = useState('');
     const[topicTitle, setTopicTitle] = useState('');
+    const[topicTags, setTopicTags] = useState('');
     const[topicVoice, setTopicVoice] = useState('');//uri
     const[recording, setRecording] = useState();//obj
     const[voiceRecording, setVoiceRecording] = useState(false);
@@ -21,12 +22,18 @@ const AddNew = ({navigation}) => {
     const[enableVote, setEnableVote] = useState(false);
     const[enableComment, setEnableComment] = useState(false);
     const[userClubs, setUserClubs] = useState([]);
-    const allowedTime = 900;//15m
+    const allowedTime = 600;//10m
     const[recordingTime, setRecordingTime] = useState({m:0,s:0,ts:0});
     const[voiceDuration, setVoiceDuration] = useState(0);
-    const [test, setTest] = useState(0);
     const interval = useRef(null);
-
+    const[validation, setValidation] = useState({
+        'club':'',
+        'title':'',
+        'title_length':'',
+        'voice':'',
+        'participants':''
+    });
+    const[isSubmitting, setIsSubmitting] = useState(false);
     
     useEffect(()=>{
         axios.get(global.APILink+'/user_clubs/'+user.id)
@@ -44,16 +51,16 @@ const AddNew = ({navigation}) => {
         if(topicClub){
             setClubMembersLoading(true);
             setClubMembers([]);
+            setClubMembersError('');
             axios.get(global.APILink+'/club/members/'+topicClub)
             .then(res=>{
                 setClubMembersLoading(false);
                 if(res.data.status === 'success'){
-                    setClubMembersError('');
-                    setClubMembers(res.data.members);
-                }
-                else if(res.data.status === 'no_members'){
-                    setClubMembersError('At least 2 participants required');
-                }
+                     setClubMembers(res.data.members);
+                 }
+                 else if(res.data.status === 'no_members'){
+                    setClubMembersError(topicClub+ " doesn't have enough participants for a discussion");
+                 }
             })
             .catch(err=>{console.log(err);setClubMembersLoading(false);});
         }
@@ -71,10 +78,10 @@ const AddNew = ({navigation}) => {
           }
         });
         setClubMembers(UC);
+
       }
 
       async function recordVoice() {
- 
         try {
           console.log('Requesting permissions..');
           await Audio.requestPermissionsAsync();
@@ -85,28 +92,8 @@ const AddNew = ({navigation}) => {
 
           console.log('Starting recording..');
           const { recording } = await Audio.Recording.createAsync(
-            {
-              isMeteringEnabled: true,
-              android: {
-                extension: '.acc',
-                outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_AAC_ADTS,
-                audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_AAC,
-                sampleRate: 44100,
-                numberOfChannels: 2,
-                bitRate: 128000,
-              },
-              ios: {
-                extension: '.caf',
-                audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_MAX,
-                sampleRate: 44100,
-                numberOfChannels: 2,
-                bitRate: 128000,
-                linearPCMBitDepth: 16,
-                linearPCMIsBigEndian: false,
-                linearPCMIsFloat: false,
-              }
-            }
-          );
+            Audio.RECORDING_OPTIONS_PRESET_LOW_QUALITY
+         );
           setRecording(recording);
           console.log('Recording started');
           //const status =  recording.getStatusAsync();
@@ -163,6 +150,47 @@ const AddNew = ({navigation}) => {
         setRecordingTime(RT);
       }
 
+      const handleCreateDiscussion =()=>{
+          let validationData = {...validation};
+          validationData.club = topicClub === ''?'Select a club':'';
+          validationData.title = topicTitle === ''?'Add topic of the discussion':'';
+          validationData.title_length= (topicTitle !== '' && topicTitle.length >250) ?'Maximum 250 characters allowed':'';
+          validationData.voice = topicVoice === ''?'Add a voice description of the topic':'';
+          let selectedParticipants = [];
+          clubMembers.forEach(member=>{
+           if(member.selected){
+              selectedParticipants.push(member.id);
+           }
+          })
+          validationData.participants = (selectedParticipants.length<2 || selectedParticipants.length>5)?'A minimum of 2 and maximum of 5 participants required':'';
+          setValidation(validationData);
+          if(!validationData.club && !validationData.title && !validationData.title_length&& !validationData.voice && !validationData.participants){
+            let formData = new FormData();
+            let uriParts = topicVoice.split('.');
+            let fileType = uriParts[uriParts.length - 1];
+            formData.append('topic_voice', {
+                uri:topicVoice,
+                name: `topic_voice.${fileType}`,
+                type: `audio/${fileType}`,
+            });
+            formData.append('user',user.id);
+            formData.append('club',topicClub);
+            formData.append('title',topicTitle);
+            formData.append('participants',JSON.stringify(selectedParticipants));
+            formData.append('vote',enableVote);
+            formData.append('comment',enableComment);
+            formData.append('tags',topicTags);
+            setIsSubmitting(true);
+            axios.post(global.APILink+'/discussion/create',formData)
+            .then(res=>{
+                setIsSubmitting(false);
+                console.log(res.data)
+            })
+            .catch(err=>{console.log(err);setIsSubmitting(false);})
+          }
+        
+      }
+
     return (
     <View style={styles.mainContainer}>
         <StatusBar />
@@ -197,18 +225,24 @@ const AddNew = ({navigation}) => {
                         return item
                     }}
                 />
+               
             </View>
+            {
+                validation.club !== '' &&  <Text style={{color:'red'}}>{validation.club}</Text>
+            }
+           
             <View>
                 <Input
                     placeholder='Topic of the discussion'
-                    errorMessage=''
+                    errorMessage= {validation.title}
+                    onChangeText={text => setTopicTitle(text)}
                     />
             </View>
             <View style={styles.voiceHolder}>
                 {
                     voiceRecording && topicVoice === '' &&
                     <View style={styles.recordingHolder}>
-                        <Icon type="feather" name="stop-circle" size={60} color="#FF6666"
+                        <Icon type="feather" name="stop-circle" size={60} color="#f4ca16"
                         containerStyle={[{backgroundColor:'#f7f7f7',width:59,height:59,borderRadius:100,},styles.shadow]}
                         iconStyle={{marginTop:-1}}
                        onPress={stopRecording} />
@@ -217,8 +251,7 @@ const AddNew = ({navigation}) => {
                            <Text style={styles.separator}>:</Text>
                            <Text style={styles.time}>{recordingTime.s}</Text>
                        </View>
-                       <Text style={{fontSize:12,color:"#333333",marginTop:5,}}>Recording time is limited to 15 minutes</Text>
-
+                       <Text style={{fontSize:12,color:"#333333",marginTop:5,}}>Recording time is limited to 10 minutes</Text>
                     </View>
                 }
                 {
@@ -244,12 +277,12 @@ const AddNew = ({navigation}) => {
                 }
             </View>
             {
+                validation.voice !== '' && topicVoice ==='' && <Text style={{color:'red',marginBottom:10}}>{validation.voice}</Text>
+            }
+            {
                 topicVoice !== '' && <View style={styles.voicePlayerHolder}>
-                    
                     <VoicePlayer soundUrl={topicVoice} duration={voiceDuration} />
-                    
                 </View>
-                
             }
             <View style={styles.participantHolder}>
                 <Text style={styles.title}>Select participant <Text style={{fontSize:13}}>(in between 2 & 5)</Text></Text>
@@ -264,6 +297,11 @@ const AddNew = ({navigation}) => {
                         clubMembersLoading && 
                         <View style={{flex:1,justifyContent:'center',alignItems:'center', paddingTop:100,}}>
                             <ActivityIndicator size='small' color="#496076" />
+                        </View>
+                    }
+                    {
+                        clubMembersError !== '' &&<View style={{flex:1,justifyContent:'center',alignItems:'center', paddingTop:100,}}>
+                            <Text style={{color:'red'}}>{clubMembersError}</Text>
                         </View>
                     }
                     {  clubMembers.map((member,index)=>{
@@ -296,10 +334,13 @@ const AddNew = ({navigation}) => {
                     })
                     }
                 </ScrollView>
+                {
+                    validation.participants!=='' && <Text style={{color:'red'}}>{validation.participants}</Text>
+                }
             </View>
             <View style={styles.voteCommentHolder}>
             <CheckBox
-            title='Enable votes'
+            title='Enable vote'
             checkedIcon='dot-circle-o'
             uncheckedIcon='circle-o'
             checked={enableVote}
@@ -308,7 +349,7 @@ const AddNew = ({navigation}) => {
             onPress={()=>setEnableVote(!enableVote)}
             />
             <CheckBox
-            title='Enable comments'
+            title='Enable comment'
             checkedIcon='dot-circle-o'
             uncheckedIcon='circle-o'
             checked={enableComment}
@@ -321,16 +362,26 @@ const AddNew = ({navigation}) => {
                 <Input placeholder='Add tags(optional), separate by comma. '
                     multiline={true} numberOfLines = {3} 
                 textAlignVertical='top'
+                onChangeText={(text)=>setTopicTags(text)}
                 />
             </View>
             <Button title='Create Discussion' 
             type="outline"
             titleStyle={{color:'#496076'}}
             containerStyle={{borderColor:'#496076',borderWidth:1, borderRadius:10}}
+            onPress={handleCreateDiscussion}
+            disabled={isSubmitting}
             />
         </View>
      </View>
      </ScrollView>
+     {
+         isSubmitting && <View style={styles.overly}>
+         <ActivityIndicator size='large' color="#f7f7f7" />
+            <Text style={{color:'#f7f7f7'}}>Creating Discussion</Text>
+        </View>
+     }
+     
     </View>
     )
 }
@@ -345,7 +396,6 @@ const styles = StyleSheet.create({
     textColor:{
         color:'#333333'
     },
-
     mainContainer:{
      backgroundColor:'#d0dce7',
      flex:1,
@@ -441,5 +491,16 @@ const styles = StyleSheet.create({
     recordingHolder:{
         justifyContent:'center',
         alignItems:'center'
+    },
+    overly:{
+        position:'absolute',
+        flex:1,
+        width:'100%',
+        height:'100%',
+        backgroundColor:'rgba(0,0,0,.5)',
+        alignItems:'center',
+        justifyContent:'center',
+
     }
+
 })

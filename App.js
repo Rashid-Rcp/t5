@@ -10,7 +10,6 @@ import Account from './screens/account/Account'
 import ClubForm from './screens/common/club/ClubForm';
 import { UserProvider } from './context/UserContext';
 import * as SecureStore from 'expo-secure-store';
-import{ default as AudioTest} from './screens/test/AudioTest'
 
 const DiscussionStack = createNativeStackNavigator();
 const DiscussionCreatorStack = createNativeStackNavigator();
@@ -19,7 +18,6 @@ const Tab = createBottomTabNavigator();
 function discussionCreatorStackScreen(){
   return (
   <DiscussionCreatorStack.Navigator>
-    <DiscussionCreatorStack.Screen name="test" component={AudioTest} options={{headerShown:false}} />
     <DiscussionCreatorStack.Screen name="DiscussionCreatorHome" component={DiscussionCreatorHome} options={{headerShown:false}} />
     <DiscussionCreatorStack.Screen name="AddNewDiscussion" component={AddNewDiscussion} options={{headerShown:false}} />
     <DiscussionCreatorStack.Screen name="CreateClub" component={ClubForm} options={{headerShown:false}} />

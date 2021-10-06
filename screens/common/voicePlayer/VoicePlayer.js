@@ -34,6 +34,10 @@ const VoicePlayer = ({soundUrl, duration}) => {
     VD.s=seconds;
     setVoiceDuration(VD);
 
+    return ()=>{
+      setVoiceDuration({m:0,s:0});
+    }
+
   },[duration])
 
   const onTouchEndHandle=(low)=>{
@@ -41,9 +45,7 @@ const VoicePlayer = ({soundUrl, duration}) => {
         return;
       }
     let position = (low/100)*durationMills;
-    console.log('end');
-    console.log(low);
-    console.log(position)
+    setIsPlaying(true);
     setProgressPosition(low);
     playingSound.playFromPositionAsync(position);
   }

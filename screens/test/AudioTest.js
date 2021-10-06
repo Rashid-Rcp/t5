@@ -16,7 +16,7 @@ const AudioTest = () => {
   
     const [recording, setRecording] = useState();
     const [playingSound, setPlayingSound] = useState();
-    const[soundUrl, setSoundUrl] = useState('https://s3.amazonaws.com/exp-us-standard/audio/playlist-example/Comfort_Fit_-_03_-_Sorry.mp3');
+    const[soundUrl, setSoundUrl] = useState(global.Link+'/test/Voice 001_sd.m4a');
     const[isPlaying, setIsPlaying] = useState(false);
     const[progressPosition, setProgressPosition] = useState(0);
     const[durationMills, setDurationMills] = useState();
@@ -104,29 +104,32 @@ const AudioTest = () => {
             playsInSilentModeIOS: true,
           }); 
           console.log('Starting recording..');
+          // const { recording } = await Audio.Recording.createAsync(
+          //   {
+          //     isMeteringEnabled: true,
+          //     android: {
+          //       extension: '.acc',
+          //       outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_AAC_ADTS,
+          //       audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_AAC,
+          //       sampleRate: 44100,
+          //       numberOfChannels: 2,
+          //       bitRate: 128000,
+          //     },
+          //     ios: {
+          //       extension: '.caf',
+          //       audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_MAX,
+          //       sampleRate: 44100,
+          //       numberOfChannels: 2,
+          //       bitRate: 128000,
+          //       linearPCMBitDepth: 16,
+          //       linearPCMIsBigEndian: false,
+          //       linearPCMIsFloat: false,
+          //     }
+          //   }
+          // );
           const { recording } = await Audio.Recording.createAsync(
-            {
-              isMeteringEnabled: true,
-              android: {
-                extension: '.acc',
-                outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_AAC_ADTS,
-                audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_AAC,
-                sampleRate: 44100,
-                numberOfChannels: 2,
-                bitRate: 128000,
-              },
-              ios: {
-                extension: '.caf',
-                audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_MAX,
-                sampleRate: 44100,
-                numberOfChannels: 2,
-                bitRate: 128000,
-                linearPCMBitDepth: 16,
-                linearPCMIsBigEndian: false,
-                linearPCMIsFloat: false,
-              }
-            }
-          );
+            Audio.RECORDING_OPTIONS_PRESET_LOW_QUALITY
+         );
           setRecording(recording);
           console.log('Recording started');
          const status =  recording.getStatusAsync();
