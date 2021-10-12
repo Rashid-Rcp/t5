@@ -5,7 +5,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {default as DiscussionHome} from './screens/discussion/Home';
 import {default as DiscussionDetails} from './screens/discussion/details/Details';
 import {default as DiscussionCreatorHome} from './screens/discussion/HomeCreator';
-import {default as AddNewDiscussion} from './screens/discussion/AddNew'
+import {default as AddNewDiscussion} from './screens/discussion/creator/AddNew'
+import {default as ManageDiscussion} from './screens/discussion/creator/Manage'
 import Account from './screens/account/Account'
 import ClubForm from './screens/common/club/ClubForm';
 import { UserProvider } from './context/UserContext';
@@ -21,7 +22,7 @@ function discussionCreatorStackScreen(){
     <DiscussionCreatorStack.Screen name="DiscussionCreatorHome" component={DiscussionCreatorHome} options={{headerShown:false}} />
     <DiscussionCreatorStack.Screen name="AddNewDiscussion" component={AddNewDiscussion} options={{headerShown:false}} />
     <DiscussionCreatorStack.Screen name="CreateClub" component={ClubForm} options={{headerShown:false}} />
-
+    <DiscussionCreatorStack.Screen name="ManageDiscussion" component={ManageDiscussion} options={{headerShown:false}} />
   </DiscussionCreatorStack.Navigator>
   )
 }

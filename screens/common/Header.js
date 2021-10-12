@@ -32,12 +32,12 @@ const Header = ({navigation}) => {
     if(userData.discussionMode === 'normal'){
       userData.activeTab='discussionNormal';
       setUser(userData);
-      navigation.navigate('Discussion');
+      navigation.navigate('DiscussionHome');
     }
     else{
       userData.activeTab='discussionCreator';
       setUser(userData);
-      navigation.navigate('DiscussionCreator');
+      navigation.navigate('DiscussionCreatorHome');
     }
   }
   

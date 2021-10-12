@@ -1,12 +1,12 @@
 import React,{useContext,useEffect,useState,useRef} from 'react'
 import { View, Text,Image,StyleSheet,StatusBar,ActivityIndicator, ScrollView,Keyboard,TouchableOpacity,TouchableWithoutFeedback } from 'react-native'
 import {Icon, Input, CheckBox, Button} from 'react-native-elements';
-import { UserContext } from '../../context/UserContext';
+import { UserContext } from '../../../context/UserContext';
 import axios from 'axios';
 import SelectDropdown from 'react-native-select-dropdown';
 import { Audio } from 'expo-av';
-import Header from '../common/Header';
-import VoicePlayer from '../common/voicePlayer/VoicePlayer';
+import Header from '../../common/Header';
+import VoicePlayer from '../../common/voicePlayer/VoicePlayer';
 const AddNew = ({navigation}) => {
     const[user, setUser] = useContext(UserContext);
     const[addNewTopic, setAddNewTopic] = useState(true);

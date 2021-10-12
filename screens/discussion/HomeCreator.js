@@ -1,5 +1,5 @@
 import React,{useContext,useEffect,useState} from 'react'
-import { View, Text, StyleSheet,StatusBar, ScrollView,TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet,StatusBar, ScrollView,TouchableOpacity,ActivityIndicator } from 'react-native'
 import {Icon} from 'react-native-elements';
 import { UserContext } from '../../context/UserContext';
 import Header from '../common/Header';
@@ -10,16 +10,32 @@ import axios from 'axios';
 const HomeCreator = ({navigation}) => {
 
     const[user,setUser] = useContext(UserContext);
+    const[discussions, setDiscussions] = useState([]);
+    const[isLoading, setIsLoading]  = useState(true);
     
     useEffect(()=>{
-        if(user.loaded && user.clubId === '0'){
+        if(user.loaded && user.club === false){
             navigation.navigate('CreateClub',{backTo:'DiscussionCreatorHome'});
         }
-    },[user])
+    },[user]);
 
-    const handleSelectMembers = ()=>{
+    useEffect(()=>{
+        if(user.loaded && user.club === true){
+            axios.get(global.APILink+'/discussion/user/'+user.id)
+            .then(res=>{
+                setIsLoading(false);
+                if(res.data.status === 'success'){
+                    setDiscussions(res.data.discussions)
+                }
+                else{
+                    console.log('error occurred');
+                }
+            })
+            .catch(err=>{console.log(err)})
+        }
+    },[user]);
 
-    }
+
 
     if(!user.loaded){
         return (<View style={{flex:1,justifyContent:'center',alignItems:'center',backgroundColor:'#d0dce7'}}>
@@ -44,35 +60,59 @@ const HomeCreator = ({navigation}) => {
             <StatusBar />
             <Header navigation={navigation}/>
             <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator ={false}>
-                 <View style={styles.topicHolder}>
-                    <Text style={styles.topicTitle}>
-                        here is the title of the topic and some ideas about it and what it is
-                    </Text>
-                    <View style={styles.topicMetaHolder}>
-                        <View style={styles.topicStatus}>
-                                <Text style={styles.metaText}>Open</Text>
-                        </View> 
-                        <View style={styles.topicMeta}>
-                            <Text style={styles.metaText}>100 Messages</Text>
-                        </View>
-                        <View style={styles.topicMeta}>
-                            <Text style={styles.metaText}>200 Votes</Text>
-                        </View>
-                        <View style={styles.topicMeta}>
-                            <Text style={styles.metaText}>125 Comments</Text>
-                        </View>
+                {
+                    isLoading && <View style={{flex:1,justifyContent:'center',alignItems:'center',paddingTop:'50%'}}>
+                        <ActivityIndicator size='small' color="#496076"/>
                     </View>
-                    <View style={styles.topicBottom}>
-                        <Text style={styles.topicTime}>5 hrs ago</Text>
-                        <TouchableOpacity style={styles.manageButton}>
-                            <Text style={styles.manageButtonText}>Manage</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
+                }
+                {
+                    discussions.map((discussion,index)=>{
+                        return(
+                            <View key={index} style={styles.topicHolder}>
+                                <Text style={styles.topicTitle}>
+                                  {discussion.topic}  
+                                </Text>
+                                <View style={styles.topicMetaHolder}>
+                                    <View style={styles.topicStatus}>
+                                            <Text style={styles.metaText}>{discussion.status}</Text>
+                                    </View>
+                                    <View style={styles.topicMeta}>
+                                        <Text style={styles.metaText}>{discussion.answers??'0'} Messages</Text>
+                                    </View>
+                                    {
+                                        discussion.vote === 'true' && 
+                                        <View style={styles.topicMeta}>
+                                            <Text style={styles.metaText}>{discussion.votes??'0'} Votes</Text>
+                                        </View>
+                                    }
+                                    {
+                                        discussion.comment === 'true' &&
+                                        <View style={styles.topicMeta}>
+                                            <Text style={styles.metaText}>{discussion.comments??'0'} Comments</Text>
+                                        </View>
+                                    }
+                                </View>
+                                <View style={styles.topicBottom}>
+                                    <Text style={styles.topicTime}>{discussion.time}</Text>
+                                    <Text style={styles.topicTime}>@{discussion.club}</Text>
+                                    <TouchableOpacity style={styles.manageButton} onPress={()=>navigation.navigate('ManageDiscussion',{discussion:discussion.id})}>
+                                        <Text style={styles.manageButtonText}>Manage</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        )
+                    })
+                }
+                 
                 <View style={{height:100}}></View>
             </ScrollView>
             <View style={styles.addNew}>
-                <Icon type='ionicon' name='ios-add-circle-sharp' size={50} color={'#496076'} onPress={()=>navigation.navigate('AddNewDiscussion')}/>
+                <View style={{backgroundColor:'#f7f7f7',height:30,width:30,position:'absolute',top:10,right:12}}></View>
+                <View>
+                    <Icon type='ionicon' name='ios-add-circle-sharp' size={50} color={'#496076'}
+                    onPress={()=>navigation.navigate('AddNewDiscussion')}/>
+                </View>
+                
             </View>
         </View>
     )
@@ -102,7 +142,9 @@ const styles = StyleSheet.create({
     },
     topicTitle:{
         color:"#333333",
-        fontSize:18,
+        fontSize:17,
+        marginTop:10,
+        marginBottom:5,
     },
     textColor:{
         color:'#333333'
@@ -126,6 +168,7 @@ const styles = StyleSheet.create({
     metaText:{
         fontSize:13,
         color:"#333333",
+        textTransform:'capitalize'
     },
     topicMetaHolder:{
         flexDirection:'row',
@@ -156,6 +199,16 @@ const styles = StyleSheet.create({
         position:'absolute',
         bottom:10,
         right:10,
+    },
+    shadow:{
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 10,
+        },
+        shadowOpacity: 1,
+        shadowRadius: 10,
+        elevation: 10,
     },
 
 });

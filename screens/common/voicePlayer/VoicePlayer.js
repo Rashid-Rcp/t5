@@ -58,6 +58,7 @@ const VoicePlayer = ({soundUrl, duration}) => {
 
   async function playSound() {
     console.log('Loading Sound');
+    console.log(soundUrl);
     const { sound } = await Audio.Sound.createAsync(
         { uri: soundUrl },
         { progressUpdateIntervalMillis: 1000},

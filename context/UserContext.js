@@ -19,7 +19,7 @@ export const UserProvider = (props)=>{
 
     const [user, setUser] = useState({
         'id':'0',
-        'clubId':'0',
+        'club':false,
         'loaded':false,
         'discussionMode':'normal',
         'activeTab':'discussionNormal'
@@ -39,7 +39,7 @@ export const UserProvider = (props)=>{
                    await axios.get(global.APILink+'/user/club/'+user_id)
                     .then(res=>{
                         if(res.data.status === 'success'){
-                            userData.clubId = res.data.club.id.toString();
+                            userData.club = true;
                         }
                     })
                     .catch(err=>console.log(err))
