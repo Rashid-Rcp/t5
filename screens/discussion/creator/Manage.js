@@ -1,5 +1,5 @@
 import React,{useEffect, useState} from 'react'
-import { View, Text,StyleSheet,StatusBar,ScrollView,Image } from 'react-native';
+import { View, Text,StyleSheet,StatusBar,ScrollView,Image ,TouchableOpacity, ActivityIndicator} from 'react-native';
 import {Button} from 'react-native-elements';
 import Header from '../../../screens/common/Header';
 import VoicePlayer from '../../common/voicePlayer/VoicePlayer';
@@ -18,119 +18,124 @@ const Manage = ({route,navigation}) => {
                 setIsLoading(false); 
             }
         })
-        .catch(err=>{console.log(err)})
+        .catch(err=>{console.log(err);setIsLoading(false)})
     },[discussion])
     
     return (
         <View style={styles.mainContainer}>
             <StatusBar />
             <Header navigation={navigation}/>
-            <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
-                {
-                    !isLoading && <>
-                    <View style={[styles.holder,{marginTop:15}]}> 
-                        <Text style={styles.club}>
-                            @{discussionData[0].club}
-                        </Text>
-                        <Text style={styles.topic}>
-                            {discussionData[0].topic}
-                        </Text>
-                        <View>
-                            <VoicePlayer soundUrl={global.Link+'/voice/club/'+discussionData[0].description_audio} duration={20} />
-                        </View>
-                        <View style={{flexDirection:'row',justifyContent:'space-between'}}>
-                            <Text style={styles.creator}>by Anna</Text>
-                            <Text style={styles.date}>5 days ago</Text>
-                        </View>
-                        </View>
-                        <View style={styles.holder}>
-                        <Text style={styles.participants}>Participants</Text>
-                        <View style={styles.participantsHolder}>
-                            {
-                                discussionData[0].participants_data.map((participant, index)=>{
-                                    return (
-                                        <View key={index} style={styles.participantItem}>
-                                        <Image
-                                        source={{uri:global.Link+'/images/'+participant.image}}
-                                        style={styles.participantsDP}
-                                        />
-                                        <Text>{participant.name}</Text>
-                                    </View>
-                                    )
-                                })
-                            }
-                        </View>
-                        </View>
-                        {
-                        discussionData[0].vote === 'true' &&
-                        <View style={styles.holder}>
-                            <Text style={styles.votes}>{discussionData[0].total_votes} Votes</Text>
-                            <View style={styles.voteHolder}>
-                                {
-                                    discussionData[0].votes.map((participant,index)=>{
-                                        let id = Object.keys(participant)[0];
-                                        
-                                        if(!participant[id][0]){
-                                            return (<View key={index}></View>);
-                                        }
-                                        let total_votes = discussionData[0].total_votes;
-                                        let percentage = parseInt((100 * participant[id][0]['votes']) / total_votes);
-                                        
-                                        return(
-                                            <View key={index} style={styles.voteItem}>
-                                                <View style={styles.memberHolder}>
-                                                    <Image
-                                                        style={styles.memberDP}
-                                                        source={{
-                                                        uri: global.Link+'/images/'+participant[id][0]['image'],
-                                                        }}
-                                                    />
-                                                    <View style={styles.percentageHolder}>
-                                                        <View style={styles.percentageContainer}>
-                                                            <Text style={[styles.percentage,{width:percentage+'%'}]}>{percentage}%</Text>
-                                                        </View>
-                                                    </View>
-                                                </View>
-                                                <Text style={styles.name}>{participant[id][0]['name']}</Text>
-                                            </View>
-                                        )
-                                    })
-                                }
-                                
+            {
+            isLoading && <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+                <ActivityIndicator size="small" color="#496076" />
+            </View>
+            }
+            {
+            !isLoading && <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
+            <View style={[styles.holder,{marginTop:15}]}> 
+                <Text style={styles.club}>
+                    @{discussionData[0].club}
+                </Text>
+                <Text style={styles.topic}>
+                    {discussionData[0].topic}
+                </Text>
+                <View>
+                    <VoicePlayer soundUrl={global.Link+'/voice/club/'+discussionData[0].description_audio} duration={discussionData[0].audio_duration} />
+                </View>
+                <View style={{flexDirection:'row',justifyContent:'space-between'}}>
+                    <Text style={styles.creator}>by {discussionData[0].creator}</Text>
+                    <Text style={styles.date}>{discussionData[0].date}</Text>
+                </View>
+                </View>
+                <View style={styles.holder}>
+                <Text style={styles.participants}>Participants</Text>
+                <View style={styles.participantsHolder}>
+                    {
+                        discussionData[0].participants_data.map((participant, index)=>{
+                            return (
+                                <View key={index} style={styles.participantItem}>
+                                <Image
+                                source={{uri:global.Link+'/images/'+participant.image}}
+                                style={styles.participantsDP}
+                                />
+                                <Text>{participant.name.length>5?participant.name.substring(0, 5)+'...':participant.name}</Text>
                             </View>
-                        </View>
-                        }
-
-                        <View style={styles.holder}>
-                        <Text style={styles.comment}>{discussionData[0].total_comments} Comments</Text>
+                            )
+                        })
+                    }
+                </View>
+                </View>
+                {
+                discussionData[0].vote === 'true' &&
+                <View style={styles.holder}>
+                    <Text style={styles.votes}>{discussionData[0].total_votes} Votes</Text>
+                    <View style={styles.voteHolder}>
                         {
-                            discussionData[0].comments.map((comment, index)=>{
-                                return (
-                                <View key={index} style={styles.commentHolder}>
-                                    <Image style={styles.memberDP}
-                                    source={{
-                                            uri: global.Link+'/images/'+comment.user_image,
-                                    }} />
-                                    <View style={styles.textHoler}>
-                                        <Text style={styles.name}>{comment.user_name}</Text>
-                                        <Text style={styles.memberComment}>{comment.comment}</Text>
+                            discussionData[0].votes.map((participant,index)=>{
+                                let id = Object.keys(participant)[0];
+                                
+                                if(!participant[id][0]){
+                                    return (<View key={index}></View>);
+                                }
+                                let total_votes = discussionData[0].total_votes;
+                                let percentage = parseInt((100 * participant[id][0]['votes']) / total_votes);
+                                
+                                return(
+                                    <View key={index} style={styles.voteItem}>
+                                        <View style={styles.memberHolder}>
+                                            <Image
+                                                style={styles.memberDP}
+                                                source={{
+                                                uri: global.Link+'/images/'+participant[id][0]['image'],
+                                                }}
+                                            />
+                                            <View style={styles.percentageHolder}>
+                                                <View style={styles.percentageContainer}>
+                                                    <Text style={[styles.percentage,{width:percentage+'%'}]}>{percentage}%</Text>
+                                                </View>
+                                            </View>
+                                        </View>
+                                        <Text style={styles.name}>{participant[id][0]['name']}</Text>
                                     </View>
-                                </View>
-                                );
+                                )
                             })
                         }
-                        <Text style={styles.allComments}>View all comments</Text>
-                        </View>
-                        <View style={styles.buttonHolder}>
-                        <Button title="Remove"
-                        buttonStyle={{backgroundColor:'#FF6666',borderRadius:50,width:100}} />
-                        <Button title="Close"
-                        buttonStyle={{backgroundColor:'#496076',borderRadius:50,width:150}}
-                        />
-                        </View>
-                    </>
+                        
+                    </View>
+                </View>
                 }
+
+                <View style={styles.holder}>
+                <Text style={styles.comment}>{discussionData[0].total_comments} Comments</Text>
+                {
+                    discussionData[0].comments.map((comment, index)=>{
+                        return (
+                        <View key={index} style={styles.commentHolder}>
+                            <Image style={styles.memberDP}
+                            source={{
+                                    uri: global.Link+'/images/'+comment.user_image,
+                            }} />
+                            <View style={styles.textHoler}>
+                                <Text style={styles.name}>{comment.user_name}</Text>
+                                <Text style={styles.memberComment}>{comment.comment}</Text>
+                            </View>
+                        </View>
+                        );
+                    })
+                }
+                <TouchableOpacity onPress={()=>{navigation.navigate('CreatorAllComments',{discussionId:discussion})}}>
+                    <Text style={styles.allComments}>View all comments</Text>
+                </TouchableOpacity>
+                </View>
+                <View style={styles.buttonHolder}>
+                <Button title="Remove"
+                buttonStyle={{backgroundColor:'#FF6666',borderRadius:50,width:100}} />
+                <Button title="Close"
+                buttonStyle={{backgroundColor:'#496076',borderRadius:50,width:150}}
+                />
+                </View>
             </ScrollView>
+        }
         </View>
     )
 }

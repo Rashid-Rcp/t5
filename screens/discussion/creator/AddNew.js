@@ -180,6 +180,7 @@ const AddNew = ({navigation}) => {
             formData.append('vote',enableVote);
             formData.append('comment',enableComment);
             formData.append('tags',topicTags);
+            formData.append('duration',voiceDuration);
             setIsSubmitting(true);
             axios.post(global.APILink+'/discussion/create',formData)
             .then(res=>{
