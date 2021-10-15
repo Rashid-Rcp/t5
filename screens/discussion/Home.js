@@ -8,27 +8,38 @@ import axios from 'axios';
 import { UserContext } from '../../context/UserContext';
 const Home = ({navigation}) => {
 
-  const [user,setUser] = useContext(UserContext);
+  const[user,setUser] = useContext(UserContext);
   const[participantFilter, setParticipantFilter] = useState(false);
   const[showFilter, setShowFilter] = useState(false);
+  const[discussions, setDiscussions] = useState([]);
 
   useEffect(() => {
-   if(!participantFilter){
-      axios.get(global.APILink+'/discussion/user_follow/all')
+    if(user.loaded && user.id !== '0'){
+      if(!participantFilter){
+        axios.get(global.APILink+'/discussion/user_follow/all/'+user.id)
+        .then(res=>{
+          if(res.data.status === 'success'){
+            setDiscussions(res.data.discussions)
+          }
+        })
+        .catch(err=>{console.log(err)})
+     }
+     else{
+      axios.get(global.APILink+'/discussion/user_follow/participant/'+user.id)
       .then(res=>{
-        console.log(res.data);
+        if(res.data.status === 'success'){
+          setDiscussions(res.data.discussions)
+        }
       })
       .catch(err=>{console.log(err)})
-   }
-   else{
-    axios.get(global.APILink+'/discussion/user_follow/participant')
-    .then(res=>{
-      console.log(res.data);
-    })
-    .catch(err=>{console.log(err)})
-
-   }
-  }, [participantFilter])
+     }
+    }
+    else{
+      console.log('no user');
+      //show suggestion with most popular
+    }
+   
+  }, [participantFilter,user])
 
   const handleScroll = ()=>{
 
@@ -48,57 +59,33 @@ const Home = ({navigation}) => {
               {
                 showFilter &&  <View style={styles.filterLink}>
                   <TouchableOpacity onPress={handleParticipatingFilter}>
-                    <Text style={styles.filterText}>{participantFilter?'Show all discussions':'show participating discussions only'}</Text>
+                    <Text style={styles.filterText}>{participantFilter?'Show all discussions':'Show participating discussions only'}</Text>
                   </TouchableOpacity>
               </View>
               }
               <Icon onPress={()=>setShowFilter(!showFilter)} name="filter" type="fontisto" color={participantFilter?'#7accc8':'#496076'} size={30} />
             </View>
             <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}  onScroll={event=>{handleScroll(event)}}>
-              
-             <View style={styles.contentItem}>
-               <TouchableOpacity onPress={()=>{navigation.navigate('DiscussionDetails')}}>
-                <Text style={styles.itemTitle}>What are the important thing to notice while developing a prototype?</Text>
-                <View style={styles.participant}><Text style={styles.metaText}>Participant</Text></View>
-                <View style={styles.itemMeta}>
-                  <Text style={styles.metaText}>10 hrs ago</Text>
-                  <Text style={styles.metaText}>@startup_health</Text>
-                  <View style={styles.metaStatus}><Text  style={styles.metaText}>Open</Text></View>
-                </View>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.contentItem}>
-              <Text style={styles.itemTitle}>What are the important thing to notice while developing a prototype?</Text>
-              <View style={styles.itemMeta}>
-                <Text style={styles.metaText}>10 hrs ago</Text>
-                <Text style={styles.metaText}>@startup_health</Text>
-                <View style={styles.metaStatus}><Text  style={styles.metaText}>Open</Text></View>
-              </View>
-            </View>
-            <View style={styles.contentItem}>
-              <Text style={styles.itemTitle}>What are the important thing to notice while developing a prototype?</Text>
-              <View style={styles.itemMeta}>
-                <Text style={styles.metaText}>10 hrs ago</Text>
-                <Text style={styles.metaText}>@startup_health</Text>
-                <View style={styles.metaStatus}><Text  style={styles.metaText}>Open</Text></View>
-              </View>
-            </View>
-            <View style={styles.contentItem}>
-              <Text style={styles.itemTitle}>What are the important thing to notice while developing a prototype?</Text>
-              <View style={styles.itemMeta}>
-                <Text style={styles.metaText}>10 hrs ago</Text>
-                <Text style={styles.metaText}>@startup_health</Text>
-                <View style={styles.metaStatus}><Text  style={styles.metaText}>Open</Text></View>
-              </View>
-            </View>
-            <View style={styles.contentItem}>
-              <Text style={styles.itemTitle}>What are the important thing to notice while developing a prototype?</Text>
-              <View style={styles.itemMeta}>
-                <Text style={styles.metaText}>10 hrs ago</Text>
-                <Text style={styles.metaText}>@startup_health</Text>
-                <View style={styles.metaStatus}><Text  style={styles.metaText}>Open</Text></View>
-              </View>
-            </View>
+              {
+                discussions.map((discussion, index)=>{
+                  return(
+                  <View key={discussion.id} style={styles.contentItem}>
+                    <TouchableOpacity onPress={()=>{navigation.navigate('DiscussionDetails',{discussionId:discussion.id})}}>
+                      <Text style={styles.itemTitle}>{discussion.topic}</Text>
+                      {
+                       discussion.participant !== 0 &&
+                        <View style={styles.participant}><Text style={styles.metaText}>Participant</Text></View>
+                      }
+                      <View style={styles.itemMeta}>
+                        <Text style={styles.metaText}>{discussion.time}</Text>
+                        <Text style={styles.metaText}>@{discussion.club}</Text>
+                        <View style={[styles.metaStatus,{backgroundColor:discussion.status==='open'?'#a3d39c':'#ccc'}]}><Text  style={[styles.metaText,{textTransform:'capitalize'}]}>{discussion.status}</Text></View>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                  )
+                })
+              }
           </ScrollView>
             </View>
             <Footer />
@@ -136,7 +123,7 @@ const styles = StyleSheet.create({
         marginVertical:5,
       },
       itemTitle:{
-        fontSize:18,
+        fontSize:17,
         color:'#333333'
       },
       itemMeta:{
@@ -151,10 +138,9 @@ const styles = StyleSheet.create({
         color:'#333333',
       },
       metaStatus:{
-        backgroundColor:'#a3d39c',
         paddingVertical:1,
         paddingHorizontal:8,
-        borderRadius:20
+        borderRadius:20,
       },
       filter:{
         position:'absolute',

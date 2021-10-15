@@ -73,7 +73,6 @@ const Manage = ({route,navigation}) => {
                         {
                             discussionData[0].votes.map((participant,index)=>{
                                 let id = Object.keys(participant)[0];
-                                
                                 if(!participant[id][0]){
                                     return (<View key={index}></View>);
                                 }

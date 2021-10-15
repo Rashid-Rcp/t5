@@ -184,8 +184,11 @@ const AddNew = ({navigation}) => {
             setIsSubmitting(true);
             axios.post(global.APILink+'/discussion/create',formData)
             .then(res=>{
-                setIsSubmitting(false);
-                console.log(res.data)
+               // setIsSubmitting(false);
+               // console.log(res.data)
+                if(res.data.status === 'success'){
+                    navigation.navigate('ManageDiscussion',{discussion:res.data.id})
+                }
             })
             .catch(err=>{console.log(err);setIsSubmitting(false);})
           }
