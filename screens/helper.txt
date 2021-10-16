@@ -4,3 +4,8 @@ bg color #d0dce7
 
 section/column color f7f7f7
 black text color #333333
+
+green tag color #5b841b, bg #c6e1c6 border #a2c074
+blu tag color #405f74  border #789db6 bg #f7f7f7
+
+blu tag2 bg #c8d7e1 color #2e4453 border #789db6

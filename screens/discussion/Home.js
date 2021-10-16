@@ -1,5 +1,5 @@
 import React,{useContext, useState, useEffect} from 'react'
-import { View, Text, StyleSheet,StatusBar, ScrollView,TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet,StatusBar, ScrollView,TouchableOpacity, ActivityIndicator } from 'react-native'
 import Header from '../common/Header';
 import Footer from '../common/Footer';
 import{Icon} from 'react-native-elements';
@@ -12,12 +12,15 @@ const Home = ({navigation}) => {
   const[participantFilter, setParticipantFilter] = useState(false);
   const[showFilter, setShowFilter] = useState(false);
   const[discussions, setDiscussions] = useState([]);
+  const[isLoading,setIsLoading] = useState(true);
 
   useEffect(() => {
+    setIsLoading(true);
     if(user.loaded && user.id !== '0'){
       if(!participantFilter){
         axios.get(global.APILink+'/discussion/user_follow/all/'+user.id)
         .then(res=>{
+          setIsLoading(false);
           if(res.data.status === 'success'){
             setDiscussions(res.data.discussions)
           }
@@ -27,6 +30,7 @@ const Home = ({navigation}) => {
      else{
       axios.get(global.APILink+'/discussion/user_follow/participant/'+user.id)
       .then(res=>{
+        setIsLoading(false);
         if(res.data.status === 'success'){
           setDiscussions(res.data.discussions)
         }
@@ -63,9 +67,15 @@ const Home = ({navigation}) => {
                   </TouchableOpacity>
               </View>
               }
-              <Icon onPress={()=>setShowFilter(!showFilter)} name="filter" type="fontisto" color={participantFilter?'#7accc8':'#496076'} size={30} />
+              <Icon onPress={()=>setShowFilter(!showFilter)} name="filter" type="fontisto" color={participantFilter?'#444':'#496076'} size={30} />
             </View>
-            <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}  onScroll={event=>{handleScroll(event)}}>
+            {
+              isLoading && <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+                  <ActivityIndicator size='small' color='#496076' />
+              </View>
+            }
+            {
+              !isLoading && <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}  onScroll={event=>{handleScroll(event)}}>
               {
                 discussions.map((discussion, index)=>{
                   return(
@@ -74,12 +84,12 @@ const Home = ({navigation}) => {
                       <Text style={styles.itemTitle}>{discussion.topic}</Text>
                       {
                        discussion.participant !== 0 &&
-                        <View style={styles.participant}><Text style={styles.metaText}>Participant</Text></View>
+                        <View style={styles.participant}><Text style={{color:"#405f74",fontSize:13}}>Participant</Text></View>
                       }
                       <View style={styles.itemMeta}>
                         <Text style={styles.metaText}>{discussion.time}</Text>
                         <Text style={styles.metaText}>@{discussion.club}</Text>
-                        <View style={[styles.metaStatus,{backgroundColor:discussion.status==='open'?'#a3d39c':'#ccc'}]}><Text  style={[styles.metaText,{textTransform:'capitalize'}]}>{discussion.status}</Text></View>
+                        <View style={[styles.metaStatus,{borderColor:discussion.status==='open'?'#a2c074':'#ccc'}]}><Text  style={[{color:discussion.status==='open'?'#5b841b':'#333333'},{textTransform:'capitalize',fontSize:13}]}>{discussion.status}</Text></View>
                       </View>
                     </TouchableOpacity>
                   </View>
@@ -87,6 +97,7 @@ const Home = ({navigation}) => {
                 })
               }
           </ScrollView>
+            }
             </View>
             <Footer />
         </View>
@@ -107,14 +118,16 @@ const styles = StyleSheet.create({
         paddingTop:5,
     },
     participant:{
-      backgroundColor:"#7accc8",
-      borderRadius:10,
+      backgroundColor:"#f7f7f7",
+      borderRadius:15,
       paddingHorizontal:7,
       paddingVertical:3,
       marginHorizontal:3,
       marginBottom:0,
       marginTop:10,
-      alignSelf:'flex-start'
+      alignSelf:'flex-start',
+      borderWidth:1,
+      borderColor:"#789db6",
     },
     contentItem:{
         backgroundColor:'#f7f7f7',
@@ -136,11 +149,13 @@ const styles = StyleSheet.create({
       },
       metaText:{
         color:'#333333',
+        fontSize:13,
       },
       metaStatus:{
-        paddingVertical:1,
-        paddingHorizontal:8,
+        paddingVertical:2,
+        paddingHorizontal:10,
         borderRadius:20,
+        borderWidth:1,
       },
       filter:{
         position:'absolute',
@@ -150,12 +165,12 @@ const styles = StyleSheet.create({
         flexDirection:'row'
       },
       filterLink:{
-        backgroundColor:'#7accc8',
+        backgroundColor:'#c8d7e1',
         borderRadius:20,
         padding:10,
       },
       filterText:{
-        color:'#333333',
+        color:'#2e4453',
       }
 });
 

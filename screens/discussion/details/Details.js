@@ -1,12 +1,36 @@
-import React,{useState} from 'react'
+import React,{useState, useContext, useEffect, useCallback} from 'react'
 import { View, Text,StatusBar,StyleSheet,TouchableHighlight,Image } from 'react-native'
 import Header from '../../common/type2/Header'
 import Footer from './Footer'
 import ActiveTypeContextProvider from './ActiveTypeContext';
 import { Icon } from 'react-native-elements'
 import { ScrollView } from 'react-native-gesture-handler';
+import { UserContext } from '../../../context/UserContext';
+import { Input } from 'react-native-elements';
+import axios from 'axios';
 
-const Details = () => {
+const Details = ({route}) => {
+
+    const[user, SetUser] = useContext(UserContext);
+    const[isLoading, setIsLoading] = useState(true);
+    const[answerVoice, setAnswerVoice] = useState('');
+    const[answerText, setAnswerText] = useState('');
+    const[answerDuration, setAnswerDuration] = useState('');
+
+    const {discussionId} = route.params;
+    const postAnswer = ()=>{
+        let formData = new FormData;
+        formData.append('discussion_id',discussionId);
+        let uriParts = answerVoice.split('.');
+        let fileType = uriParts[uriParts.length - 1];
+        formData.append('answer_voice', {
+            uri:answerVoice,
+            name: `answer_voice.${fileType}`,
+            type: `audio/${fileType}`,
+        });
+        formData.append('answer_text',answerText);
+        formData.append('answer_duration',answerDuration);
+    }
     return (
         <ActiveTypeContextProvider>
             <View style={styles.mainContainer}>
@@ -126,9 +150,25 @@ const Details = () => {
                     <View style={{height:100}}></View>
                     </ScrollView>
                 </View>
+                <View style={styles.answerContainer}>
+                    <View>
+                    <View>
+                        <Text>Recoding your voice</Text>
+                    </View>
+                    <View>
+                        <Text>Highlight some key point (optional)</Text>
+                        <Input
+                        multiline={true}
+                        numberOfLines={5}
+                        />
+                    </View>
+                    </View>
+                    
+                </View>
                 <View style={styles.micHolder}>
                     <Icon type="ionicon" name="mic-circle-sharp" size={60} color={'#496076'} />
                 </View>
+               
                 <Footer />
             </View>
         </ActiveTypeContextProvider>
@@ -194,6 +234,13 @@ const styles = StyleSheet.create({
         position:'absolute',
         right:10,
         bottom:70,
+    },
+    answerContainer:{
+        position:'absolute',
+        zIndex:999,
+        width:'100%',
+        height:'100%',
+        backgroundColor:'red'
     }
 });
 

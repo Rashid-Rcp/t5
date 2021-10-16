@@ -12,7 +12,6 @@ import Account from './screens/account/Account'
 import ClubForm from './screens/common/club/ClubForm';
 import { UserProvider } from './context/UserContext';
 import * as SecureStore from 'expo-secure-store';
-
 const DiscussionStack = createNativeStackNavigator();
 const DiscussionCreatorStack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -44,6 +43,7 @@ export default function App() {
   global.Link = 'http://192.168.43.50:80/t5-laravel/t5-app/public';
 
   const[initial,setInitial] = useState('');
+  // const[fontLoaded, setFontLoaded] = useState(false);
   useEffect(()=>{
     const getInitialScreen = async ()=>{
       try{
@@ -62,6 +62,7 @@ export default function App() {
     getInitialScreen();
 
   },[])
+
   if(!initial){
     return (<></>);
   }
