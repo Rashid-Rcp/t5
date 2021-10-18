@@ -15,13 +15,14 @@ const VoicePlayer = ({soundUrl, duration}) => {
   const[durationMills, setDurationMills] = useState();
   const[positionMills,setPositionMills ] = useState();
   const [playingSound, setPlayingSound] = useState();
-  const[isPlaying, setIsPlaying] = useState(false);
+  const[isPlaying, setIsPlaying] = useState('no');
   const[voiceDuration, setVoiceDuration] = useState({m:0,s:0});
+  const[voiceTimeLine, setVoiceTimeLine] = useState({m:0,s:0});
 
   useEffect(() => {
     return playingSound
       ? () => {
-          console.log('Unloading Sound');
+          //console.log('Unloading Sound');
           playingSound.unloadAsync(); }
       : undefined;
   }, []);
@@ -40,12 +41,26 @@ const VoicePlayer = ({soundUrl, duration}) => {
 
   },[duration])
 
+  useEffect(()=>{
+      let timeLine= {...voiceTimeLine};
+      let totalSeconds = Math.floor(positionMills/1000);
+      let minutes = Math.floor(totalSeconds / 60);
+      let seconds = totalSeconds % 60;
+      timeLine.m=minutes;
+      timeLine.s=seconds;
+      setVoiceTimeLine(timeLine);
+      return ()=>{
+        setVoiceTimeLine({m:0,s:0});
+      }
+
+  },[positionMills])
+
   const onTouchEndHandle=(low)=>{
       if(!playingSound){
         return;
       }
     let position = (low/100)*durationMills;
-    setIsPlaying(true);
+    setIsPlaying('yes');
     setProgressPosition(low);
     playingSound.playFromPositionAsync(position);
   }
@@ -57,24 +72,28 @@ const VoicePlayer = ({soundUrl, duration}) => {
   }
 
   async function playSound() {
-    console.log('Loading Sound');
-    console.log(soundUrl);
-    const { sound } = await Audio.Sound.createAsync(
-        { uri: soundUrl },
-        { progressUpdateIntervalMillis: 1000},
-        onPlaybackStatusUpdate
-    );
-    console.log('Playing Sound');
-    await sound.playAsync(); 
-    setPlayingSound(sound);
-    setIsPlaying(true);
-   
+    if(isPlaying === 'paused'){
+      await playingSound.playAsync();
+    }
+    else{
+      //console.log('Loading Sound');
+      //console.log(soundUrl);
+      const { sound } = await Audio.Sound.createAsync(
+          { uri: soundUrl },
+          { progressUpdateIntervalMillis: 1000},
+          onPlaybackStatusUpdate
+      );
+      //console.log('Playing Sound');
+      await sound.playAsync(); 
+      setPlayingSound(sound);
+    }
+    setIsPlaying('yes');
 }
 
 const pauseSound = ()=>{
     if(playingSound != null){
        playingSound.pauseAsync();
-       setIsPlaying(false);
+       setIsPlaying('paused');
      }
 }
   const onPlaybackStatusUpdate = (status)=>{
@@ -82,14 +101,14 @@ const pauseSound = ()=>{
       //console.log(status.positionMillis);
       //console.log(status.durationMillis);
       let Position = (status.positionMillis/status.durationMillis)*100;
-     // console.log(Position);
+      //console.log(Position);
       setDurationMills(status.durationMillis);
       setPositionMills(status.positionMillis)
       setProgressPosition(Position)
 
       if (status.didJustFinish && !status.isLooping) {
         setProgressPosition(0);
-        setIsPlaying(false)
+        setIsPlaying('no')
       }
     } else {
       if (status.error) {
@@ -113,10 +132,17 @@ const pauseSound = ()=>{
                 onTouchStart = {onTouchStartHandle}
                 // onValueChanged={handleOnValueChanged} 
                 />
-                <Text style={{color:'#333333',marginTop:3}}>{voiceDuration.m}:{voiceDuration.s}</Text>
+                {
+                  isPlaying !== 'no' && 
+                    <Text style={{color:'#333333',marginTop:3}}>{voiceTimeLine.m}:{voiceTimeLine.s}</Text>
+                }
+                {
+                  isPlaying === 'no' && 
+                    <Text style={{color:'#333333',marginTop:3}}>{voiceDuration.m}:{voiceDuration.s}</Text>
+                }
             </View>
-            <Icon type="antdesign" name={isPlaying?"pausecircle":"play"} color={'#496076'}
-             onPress={isPlaying?pauseSound :playSound} size={40}
+            <Icon type="antdesign" name={isPlaying==='yes'?"pausecircle":"play"} color={'#496076'}
+             onPress={isPlaying==='yes'?pauseSound :playSound} size={40}
              containerStyle={{marginBottom:20,}}
              />
         </View>
