@@ -18,14 +18,14 @@ const VoicePlayer = ({soundUrl, duration}) => {
   const[isPlaying, setIsPlaying] = useState('no');
   const[voiceDuration, setVoiceDuration] = useState({m:0,s:0});
   const[voiceTimeLine, setVoiceTimeLine] = useState({m:0,s:0});
-
+  
   useEffect(() => {
     return playingSound
       ? () => {
           //console.log('Unloading Sound');
           playingSound.unloadAsync(); }
       : undefined;
-  }, []);
+  },[playingSound]);
 
   useEffect(()=>{
     let VD= {...voiceDuration};
@@ -73,6 +73,7 @@ const VoicePlayer = ({soundUrl, duration}) => {
 
   async function playSound() {
     if(isPlaying === 'paused'){
+     
       await playingSound.playAsync();
     }
     else{
@@ -84,8 +85,8 @@ const VoicePlayer = ({soundUrl, duration}) => {
           onPlaybackStatusUpdate
       );
       //console.log('Playing Sound');
-      await sound.playAsync(); 
       setPlayingSound(sound);
+      await sound.playAsync(); 
     }
     setIsPlaying('yes');
 }
@@ -116,6 +117,7 @@ const pauseSound = ()=>{
       }
     }
   }
+
     return (
         <View style={styles.container}>
             <View style={{flex:1}}>

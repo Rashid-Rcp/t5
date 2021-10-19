@@ -3,21 +3,21 @@ import { View, Text,StyleSheet,TextInput } from 'react-native'
 import { Icon } from 'react-native-elements'
 import BottomSheet from './BottomSheet'
 import { ActiveTypeContext } from './ActiveTypeContext';
-const Footer = () => {
+const Footer = ({vote,comment,votes,comments}) => {
 
     const[active, setActive] = useContext(ActiveTypeContext);
     const [showBS, setShowBS] = useState(false);
-    const [comment, onChangeComment] = useState("");
+    const [commentText, onChangeCommentText] = useState("");
     const [postIcon,setPostIcon] = useState(true);
     useEffect(() => {
-            if(comment ===''){
+            if(commentText ===''){
                 setPostIcon(false);
             }else{
                 setPostIcon(true);
             }
-    },[comment]);
+    },[commentText]);
     const postComment =()=>{
-        onChangeComment('');
+        onChangeCommentText('');
     }
     return (
         <>
@@ -29,8 +29,8 @@ const Footer = () => {
             <View style={styles.container}>
                 <TextInput
                 style={styles.input}
-                onChangeText={text => onChangeComment(text)}
-                value={comment}
+                onChangeText={text => onChangeCommentText(text)}
+                value={commentText}
                 placeholder="Post a comment"
                 placeholderTextColor="#c1f1dc"
                 />
@@ -42,9 +42,15 @@ const Footer = () => {
             </View>
             :
             <View style={styles.container}>
-                <Text style={styles.footerText}>101 Votes</Text>
-                <Text style={styles.footerText}>100 Comments</Text>
-                <Icon type="material-community" name="circle-expand" color="#c1f1dc" size={35} onPress={()=>{setShowBS(!showBS)}} style={styles.expandIcon}/>
+                {
+                    vote && <Text style={styles.footerText}>{votes??'0'} {votes>1?'Votes':'Vote'}</Text>
+                } 
+                {
+                    comment && <Text style={styles.footerText}>{comments??'0'} {comment>1?'Comments':'Comment'}</Text>
+                }
+                <View style={{flex:vote&&comment?0:1,flexDirection:'row',justifyContent:'flex-end'}}>
+                    <Icon type="material-community" name="circle-expand" color="#c1f1dc" size={35} onPress={()=>{setShowBS(!showBS)}} style={styles.expandIcon}/>
+                </View>
             </View>
         }
        

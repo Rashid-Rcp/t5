@@ -1,16 +1,16 @@
 import React,{useState, useContext, useEffect, useRef} from 'react'
-import { View, Text,StatusBar,StyleSheet,TouchableHighlight,Image,TouchableWithoutFeedback,Keyboard, ActivityIndicator } from 'react-native'
+import { View, Text,StatusBar,StyleSheet,TouchableHighlight,Image,TouchableWithoutFeedback,Keyboard, ActivityIndicator,BackHandler } from 'react-native'
 import Header from '../../common/type2/Header'
 import Footer from './Footer'
 import ActiveTypeContextProvider from './ActiveTypeContext';
 import { Icon, Input, Button } from 'react-native-elements'
-import { ScrollView } from 'react-native-gesture-handler';
+import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { UserContext } from '../../../context/UserContext';
 import axios from 'axios';
 import { Audio } from 'expo-av';
 import VoicePlayer from '../../common/voicePlayer/VoicePlayer';
 
-const Details = ({route}) => {
+const Details = ({route,navigation}) => {
 
     const[user, SetUser] = useContext(UserContext);
     const[isLoading, setIsLoading] = useState(true);
@@ -26,13 +26,25 @@ const Details = ({route}) => {
     const[isSubmitting, setIsSubmitting] = useState(false);
     const[discussionDetails, setDiscussionDetails] = useState([]);
     const[discussionAnswers,setDiscussionAnswers] = useState([]);
+    const[discussionVotes, setDiscussionVotes] = useState(0);
+    const[discussionComments, setDiscussionComments] = useState(0);
+    const[vote_discussionEnabled, setVote_discussionEnabled] = useState({vote:false,comment:false})
     const {discussionId} = route.params;
-    
+    const audioPath = global.Link+'/voice/club/';
 
     useEffect(()=>{
         axios.get(global.APILink+'/discussion/details/'+discussionId)
         .then(res=>{
-            console.log(res.data)
+            //console.log(res.data)
+            if(res.data.status === 'success'){
+                setDiscussionDetails(res.data.discussion);
+                let v_c = {vote:res.data.discussion[0].vote,comment:res.data.discussion[0].comment};
+                setDiscussionVotes(res.data.discussion[0].votes);
+                setDiscussionComments(res.data.discussion[0].comments);
+                setVote_discussionEnabled(v_c);
+                setDiscussionAnswers(res.data.answers)
+                setIsLoading(false);
+            }
         })
         .catch(err=>console.log(err))
 
@@ -157,117 +169,67 @@ const Details = ({route}) => {
         <ActiveTypeContextProvider>
             <View style={styles.mainContainer}>
                 <StatusBar />
-                <Header />
+                <Header discussion={discussionDetails} navigation={navigation} />
                 <View style={styles.container}>
-                    <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
-                    <View style={styles.cardHolder}>
-                        <View style={styles.topSection}>
-                            <View style={styles.voiceHolder}>
-                                <Image
-                                    style={styles.participantDP}
-                                    source={{
-                                    uri: 'https://dhub.in/t5/demo/img/a46bd3b29ade415c4c754f7a5c2c618c.jpg',
-                                    }}
-                                />
-                                <View style={styles.voice}>
-                                    
+                    {
+                    !isLoading && <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
+                        <View style={[styles.cardHolder,{}]}>
+                            <View style={styles.topSection}>
+                                <View style={styles.voiceHolder}>
+                                    <Image
+                                        style={styles.participantDP}
+                                        source={{
+                                        uri: global.Link+'/images/'+discussionDetails[0].creator_dp,
+                                        }}
+                                    />
+                                    <View style={{flex:1,marginLeft:20,marginTop:5}}>
+                                         <VoicePlayer soundUrl={audioPath+discussionDetails[0].description_audio} duration={discussionDetails[0].audio_duration}  />
+                                    </View>
                                 </View>
-                                <Icon type="evilicon" name="play" color="#496076" size={45} onPress={()=>{}} style={styles.playIcon}/>
-                            </View>
-                            <View style={styles.userName}>
-                                <Text style={styles.textColor}>@Anna</Text>
-                            </View>
-                        </View>
-                        <View style={styles.textHolder}>
-                                <Text style={styles.textColor} >here some text and onther this from the message </Text>
-                        </View>
-                        <View style={styles.votesHolder}>
-                                <Text style={styles.percentage}>60%</Text>
-                                <Icon type="evilicon" name="like" color="#333333" size={30} onPress={()=>{}} style={styles.playIcon}/>
-                        </View>
-                    </View>
-                    <View style={styles.cardHolder}>
-                        <View style={styles.topSection}>
-                            <View style={styles.voiceHolder}>
-                                <Image
-                                    style={styles.participantDP}
-                                    source={{
-                                    uri: 'https://dhub.in/t5/demo/img/a46bd3b29ade415c4c754f7a5c2c618c.jpg',
-                                    }}
-                                />
-                                <View style={styles.voice}>
-                                    
+                                <View style={styles.userName}>
+                                    <Text style={styles.textColor}>{discussionDetails[0].creator}</Text>
                                 </View>
-                                <Icon type="evilicon" name="play" color="#496076" size={45} onPress={()=>{}} style={styles.playIcon}/>
                             </View>
-                            <View style={styles.userName}>
-                                <Text style={styles.textColor}>@Anna</Text>
+                            <View style={styles.textHolder}>
+                                    <Text style={[styles.textColor,{fontSize:16}]} >{discussionDetails[0].topic}</Text>
                             </View>
                         </View>
-                        <View style={styles.textHolder}>
-                                <Text style={styles.textColor} >here some text and onther this from the message </Text>
-                        </View>
-                        <View style={styles.votesHolder}>
-                                <Text style={styles.percentage}>60%</Text>
-                                <Icon type="evilicon" name="like" color="#333333" size={30} onPress={()=>{}} style={styles.playIcon}/>
-                        </View>
-                    </View>
-
-                    <View style={styles.cardHolder}>
-                        <View style={styles.topSection}>
-                            <View style={styles.voiceHolder}>
-                                <Image
-                                    style={styles.participantDP}
-                                    source={{
-                                    uri: 'https://dhub.in/t5/demo/img/a46bd3b29ade415c4c754f7a5c2c618c.jpg',
-                                    }}
-                                />
-                                <View style={styles.voice}>
-                                    
+                         {
+                            discussionAnswers.data.map((answer,index)=>{
+                                return(
+                                <View key={index} style={styles.cardHolder}>
+                                    <View style={styles.topSection}>
+                                        <View style={styles.voiceHolder}>
+                                            <Image
+                                                style={styles.participantDP}
+                                                source={{
+                                                uri: global.Link+'/images/'+answer.participant_dp,
+                                                }}
+                                            />
+                                            <View style={{flex:1,marginLeft:20,marginTop:5}}>
+                                                <VoicePlayer soundUrl={audioPath+answer.audio} duration={answer.audio_duration}  />
+                                            </View>
+                                        </View>
+                                        <View style={styles.userName}>
+                                            <Text style={styles.textColor}>{answer.participant}</Text>
+                                        </View>
+                                    </View>
+                                        {
+                                            answer.text &&
+                                            <View style={styles.textHolder}><Text style={[styles.textColor,{fontSize:16}]} >{answer.text}</Text></View>
+                                        }
+                                    {/* <View style={styles.votesHolder}>
+                                            <Text style={styles.percentage}>60%</Text>
+                                            <Icon type="evilicon" name="like" color="#333333" size={30} onPress={()=>{}} style={styles.playIcon}/>
+                                    </View> */}
                                 </View>
-                                <Icon type="evilicon" name="play" color="#496076" size={45} onPress={()=>{}} style={styles.playIcon}/>
-                            </View>
-                            <View style={styles.userName}>
-                                <Text style={styles.textColor}>@Anna</Text>
-                            </View>
-                        </View>
-                        <View style={styles.textHolder}>
-                                <Text style={styles.textColor} >here some text and onther this from the message </Text>
-                        </View>
-                        <View style={styles.votesHolder}>
-                                <Text style={styles.percentage}>60%</Text>
-                                <Icon type="evilicon" name="like" color="#333333" size={30} onPress={()=>{}} style={styles.playIcon}/>
-                        </View>
-                    </View>
-
-                    <View style={styles.cardHolder}>
-                        <View style={styles.topSection}>
-                            <View style={styles.voiceHolder}>
-                                <Image
-                                    style={styles.participantDP}
-                                    source={{
-                                    uri: 'https://dhub.in/t5/demo/img/a46bd3b29ade415c4c754f7a5c2c618c.jpg',
-                                    }}
-                                />
-                                <View style={styles.voice}>
-                                    
-                                </View>
-                                <Icon type="evilicon" name="play" color="#496076" size={45} onPress={()=>{}} style={styles.playIcon}/>
-                            </View>
-                            <View style={styles.userName}>
-                                <Text style={styles.textColor}>@Anna</Text>
-                            </View>
-                        </View>
-                        <View style={styles.textHolder}>
-                                <Text style={styles.textColor} >here some text and onther this from the message </Text>
-                        </View>
-                        <View style={styles.votesHolder}>
-                            <Text style={styles.percentage}>60%</Text>
-                            <Icon type="evilicon" name="like" color="#333333" size={30} onPress={()=>{}} style={styles.playIcon}/>
-                        </View>
-                    </View>
-                    <View style={{height:100}}></View>
+                                )
+                            })
+                        } 
+                        
+                        <View style={{height:100}}></View>
                     </ScrollView>
+                    }
                 </View>
                 {
                     showRecordingModal && <TouchableWithoutFeedback onPress={()=>Keyboard.dismiss()}>
@@ -343,10 +305,13 @@ const Details = ({route}) => {
                 </TouchableWithoutFeedback>
                 }
                 <View style={styles.micHolder}>
-                    <Icon type="ionicon" name="mic-circle-sharp" size={60} color={'#496076'} onPress={micPressHandler} />
+                    <Icon type="ionicon" name="mic-circle-sharp" size={60} color={'#5cd187'} onPress={micPressHandler}
+                    containerStyle={[{backgroundColor:'#f7f7f7',width:55,height:55,borderRadius:100,},styles.shadow]}
+                    iconStyle={{marginTop:-4}}
+                    />
                 </View>
                
-                <Footer />
+                <Footer vote={vote_discussionEnabled.vote} comment={vote_discussionEnabled.comment} votes={discussionVotes} comments={discussionComments} />
             </View>
         </ActiveTypeContextProvider>
     )
@@ -363,8 +328,8 @@ const styles = StyleSheet.create({
         paddingTop:5,
     },
     participantDP:{
-        width:60,
-        height:60,
+        width:50,
+        height:50,
         borderRadius:15,
     },
     cardHolder:{
@@ -380,6 +345,7 @@ const styles = StyleSheet.create({
     voiceHolder:{
         flexDirection:'row',
         alignItems:'center',
+        justifyContent:'space-between'
     },
     voice:{
         flex:1,
@@ -466,6 +432,9 @@ const styles = StyleSheet.create({
     },
     voicePlayerHolder:{
         width:'100%',
+    },
+    userName:{
+        paddingLeft:5,
     }
 });
 

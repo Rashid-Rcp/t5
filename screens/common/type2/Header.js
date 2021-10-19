@@ -1,10 +1,20 @@
-import React from 'react'
-import { View, Text, StyleSheet, Image } from 'react-native'
+import React,{useEffect,useState} from 'react'
+import { View, Text, StyleSheet, Image,TouchableOpacity } from 'react-native'
 import { Icon } from 'react-native-elements'
-const Header = () => {
+const Header = ({discussion,navigation}) => {
+
+   const[discussionDetails, setDiscussionDetails] = useState([{topic:'----------------',dp:'',club:'---------',time:'----'}]);
+   useEffect(()=>{
+       if(discussion.length>0){
+           setDiscussionDetails(discussion)
+       }
+   },[discussion])
+
+   let topic  =  discussionDetails[0].topic.length<30?discussionDetails[0].topic: discussionDetails[0].topic.slice(0, 30)+'...'; 
     return (
         <View style={styles.container}>
-            <View style={styles.clubDPHolder}>
+            <TouchableOpacity onPress={()=>navigation.goBack()}>
+             <View style={styles.clubDPHolder}>
                 <Icon
                     name='ios-chevron-back-outline'
                     type='ionicon'
@@ -13,17 +23,18 @@ const Header = () => {
                 <Image
                     style={styles.clubDP}
                     source={{
-                    uri: 'https://reactnative.dev/img/tiny_logo.png',
+                    uri: global.Link+'/images/club/'+discussionDetails[0].dp,
                     }}
                 />
             </View>
+            </TouchableOpacity>
             <View style={styles.topicHolder}>
-                <Text style={styles.topic}>Here is the title of the topic </Text>
+                <Text style={styles.topic}>{topic}</Text>
                 <View style={styles.topicMetaHolder}>
-                    <Text style={styles.topicMeta}>@fundfolio</Text>
-                    <Text style={styles.topicMeta}>2hrs ago</Text>
+                    <Text style={styles.topicMeta}>@{discussionDetails[0].club}</Text>
+                    <Text style={styles.topicMeta}>{discussionDetails[0].time}</Text>
                 </View>
-            </View>
+            </View> 
             <View style={styles.settings}>
                 <Icon
                 name='dots-three-vertical'
