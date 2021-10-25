@@ -8,6 +8,9 @@ import {default as DiscussionCreatorHome} from './screens/discussion/HomeCreator
 import {default as AddNewDiscussion} from './screens/discussion/creator/AddNew'
 import {default as ManageDiscussion} from './screens/discussion/creator/Manage'
 import {default as CreatorAllComments} from './screens/discussion/creator/AllComments'
+
+import SocketTest from './screens/test/SocketTest';
+
 import Account from './screens/account/Account'
 import ClubForm from './screens/common/club/ClubForm';
 import { UserProvider } from './context/UserContext';
@@ -70,6 +73,7 @@ export default function App() {
     <UserProvider>
     <NavigationContainer>
       <Tab.Navigator tabBar={()=>{}}>
+        {/* <Tab.Screen name="socket" component={SocketTest} options={{headerShown:false}}/> */}
         <Tab.Screen name="Initial" component={initial==='discussionNormal'?discussionStackScreen:discussionCreatorStackScreen} options={{headerShown:false}}/>
         <Tab.Screen name="Discussion" component={discussionStackScreen} options={{headerShown:false}}/>
         <Tab.Screen name="DiscussionCreator" component={discussionCreatorStackScreen} options={{headerShown:false}}/>

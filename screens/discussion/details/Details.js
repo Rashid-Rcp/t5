@@ -9,6 +9,8 @@ import { UserContext } from '../../../context/UserContext';
 import axios from 'axios';
 import { Audio } from 'expo-av';
 import VoicePlayer from '../../common/voicePlayer/VoicePlayer';
+import Pusher from 'pusher-js';
+import pusherConfig from '../../common/pusher.json';
 
 const Details = ({route,navigation}) => {
 
@@ -31,6 +33,40 @@ const Details = ({route,navigation}) => {
     const[vote_discussionEnabled, setVote_discussionEnabled] = useState({vote:false,comment:false})
     const {discussionId} = route.params;
     const audioPath = global.Link+'/voice/club/';
+    const[socketData, setSocketData] = useState({});
+    const[nexPageUrl, setNextPageUrl] = useState(null);
+
+    const pusher = new Pusher(pusherConfig.key, pusherConfig); // (1)
+   
+
+        useEffect(()=>{
+            const discussionChannel = pusher.subscribe('discussion.'+discussionId);
+            discussionChannel.bind('pusher:subscription_succeeded', () => { // (3)
+            console.log('connected');
+           });
+          discussionChannel.bind('discussion.answer', function (data) {
+            setSocketData(data.answer);
+        });
+        return ()=>{
+            pusher.unsubscribe('discussion.'+discussionId);
+            //setDiscussionAnswers([]);
+        }
+        },[])
+
+    useEffect(()=>{
+     if(Object.keys(socketData).length && nexPageUrl === null){
+        console.log('oooooo');
+        let DA = {...discussionAnswers}
+        let da_data = DA.data; 
+        da_data.push(socketData);
+        DA.data = da_data;
+        setDiscussionAnswers(DA);
+        setSocketData({});
+     }
+     else if(Object.keys(socketData).length && nexPageUrl !== null){
+       //indicate new answer
+     }
+    },[socketData])
 
     useEffect(()=>{
         axios.get(global.APILink+'/discussion/details/'+discussionId)
@@ -42,7 +78,8 @@ const Details = ({route,navigation}) => {
                 setDiscussionVotes(res.data.discussion[0].votes);
                 setDiscussionComments(res.data.discussion[0].comments);
                 setVote_discussionEnabled(v_c);
-                setDiscussionAnswers(res.data.answers)
+                setDiscussionAnswers(res.data.answers);
+                setNextPageUrl(res.data.answers.next_page_url);
                 setIsLoading(false);
             }
         })
@@ -71,7 +108,7 @@ const Details = ({route,navigation}) => {
             setIsSubmitting(true);
             axios.post(global.APILink+'/discussion/answer',formData)
             .then(res=>{
-                console.log(res.data);
+                //console.log(res.data);
                 setIsSubmitting(false)
                 if(res.data.status === 'success'){
                     closeRecordingModal();
@@ -309,6 +346,9 @@ const Details = ({route,navigation}) => {
                     containerStyle={[{backgroundColor:'#f7f7f7',width:55,height:55,borderRadius:100,},styles.shadow]}
                     iconStyle={{marginTop:-4}}
                     />
+                </View>
+                <View style={{position:'absolute',backgroundColor:'#5cd187',bottom:80,padding:10,left:10,borderRadius:10,}}>
+                  <Text style={{color:'#f7f7f7'}}>RCP added new answer</Text>
                 </View>
                
                 <Footer vote={vote_discussionEnabled.vote} comment={vote_discussionEnabled.comment} votes={discussionVotes} comments={discussionComments} />
