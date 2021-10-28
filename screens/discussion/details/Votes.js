@@ -1,90 +1,50 @@
-import React from 'react'
-import { View, Text, StyleSheet,Image,TouchableHighlight } from 'react-native'
+import React,{useEffect, useState} from 'react'
+import { View, Text, StyleSheet,Image,TouchableHighlight } from 'react-native';
+import axios from 'axios';
 
-const Votes = () => {
+const Votes = ({discussionId}) => {
+    const[participants, setParticipants] = useState([]);
+    const[totalVotes, setTotalVotes] = useState(0);
+    const[isLoading, setIsLoading] = useState(true);
+    
+    useEffect(()=>{
+        axios.get(global.APILink+'/discussion/participants/'+discussionId)
+        .then(res=>{
+            //console.log(res.data);
+            if(res.data.status === 'success'){
+                setParticipants(res.data.participants);
+                setTotalVotes(res.data.total_votes);
+                setIsLoading(false);
+            }
+        })
+        .catch(err=>{console.log(err)})
+    },[])
     return (
         <View style={styles.container}>
-            
-            <View style={styles.voteItem}>
-                <View style={styles.participantHolder}>
-                    <Image
-                        style={styles.participantDP}
-                        source={{
-                        uri: 'https://dhub.in/t5/demo/img/a46bd3b29ade415c4c754f7a5c2c618c.jpg',
-                        }}
-                    />
-                    <View style={styles.voteHolder}>
-                        <View style={styles.percentageContainer}>
-                            <Text style={[styles.percentage,{width:'60%'}]}>60%</Text>
+            {
+                participants.map((participant ,index)=>{
+                    let percentage = parseInt( (participant.votes / totalVotes ) * 100);
+
+                    return (
+                        <View key={index} style={styles.voteItem}>
+                            <View style={styles.participantHolder}>
+                                <Image
+                                    style={styles.participantDP}
+                                    source={{
+                                    uri: global.Link+'/images/'+participant.image,
+                                    }}
+                                />
+                                <View style={styles.voteHolder}>
+                                    <View style={styles.percentageContainer}>
+                                        <Text style={[styles.percentage,{width:percentage+'%'}]}>{percentage}%</Text>
+                                    </View>
+                                </View>
+                            </View>
+                            <Text style={styles.name}>{participant.name}</Text>
                         </View>
-                    </View>
-                </View>
-                <Text style={styles.name}>@anna</Text>
-            </View>
-            <View style={styles.voteItem}>
-                <View style={styles.participantHolder}>
-                    <Image
-                        style={styles.participantDP}
-                        source={{
-                        uri: 'https://dhub.in/t5/demo/img/a46bd3b29ade415c4c754f7a5c2c618c.jpg',
-                        }}
-                    />
-                    <View style={styles.voteHolder}>
-                        <View style={styles.percentageContainer}>
-                            <Text style={[styles.percentage,{width:'50%'}]}>50%</Text>
-                        </View>
-                    </View>
-                </View>
-                <Text style={styles.name}>@anna</Text>
-            </View>
-            <View style={styles.voteItem}>
-                <View style={styles.participantHolder}>
-                    <Image
-                        style={styles.participantDP}
-                        source={{
-                        uri: 'https://dhub.in/t5/demo/img/a46bd3b29ade415c4c754f7a5c2c618c.jpg',
-                        }}
-                    />
-                    <View style={styles.voteHolder}>
-                        <View style={styles.percentageContainer}>
-                            <Text style={[styles.percentage,{width:'20%'}]}>20%</Text>
-                        </View>
-                    </View>
-                </View>
-                <Text style={styles.name}>@anna</Text>
-            </View>
-            <View style={styles.voteItem}>
-                <View style={styles.participantHolder}>
-                    <Image
-                        style={styles.participantDP}
-                        source={{
-                        uri: 'https://dhub.in/t5/demo/img/a46bd3b29ade415c4c754f7a5c2c618c.jpg',
-                        }}
-                    />
-                    <View style={styles.voteHolder}>
-                        <View style={styles.percentageContainer}>
-                            <Text style={[styles.percentage,{width:'20%'}]}>20%</Text>
-                        </View>
-                    </View>
-                </View>
-                <Text style={styles.name}>@anna</Text>
-            </View>
-            <View style={styles.voteItem}>
-                <View style={styles.participantHolder}>
-                    <Image
-                        style={styles.participantDP}
-                        source={{
-                        uri: 'https://dhub.in/t5/demo/img/a46bd3b29ade415c4c754f7a5c2c618c.jpg',
-                        }}
-                    />
-                    <View style={styles.voteHolder}>
-                        <View style={styles.percentageContainer}>
-                            <Text style={[styles.percentage,{width:'20%'}]}>20%</Text>
-                        </View>
-                    </View>
-                </View>
-                <Text style={styles.name}>@anna</Text>
-            </View>
+                    )
+                })
+            }
         </View>
     )
 }

@@ -3,12 +3,15 @@ import { View, Text,StyleSheet,TextInput } from 'react-native'
 import { Icon } from 'react-native-elements'
 import BottomSheet from './BottomSheet'
 import { ActiveTypeContext } from './ActiveTypeContext';
-const Footer = ({vote,comment,votes,comments}) => {
+import Pusher from 'pusher-js';
+import pusherConfig from '../../common/pusher.json';
+const Footer = ({vote,comment,votes,comments, discussionId}) => {
 
     const[active, setActive] = useContext(ActiveTypeContext);
     const [showBS, setShowBS] = useState(false);
     const [commentText, onChangeCommentText] = useState("");
     const [postIcon,setPostIcon] = useState(true);
+   
     useEffect(() => {
             if(commentText ===''){
                 setPostIcon(false);
@@ -22,7 +25,7 @@ const Footer = ({vote,comment,votes,comments}) => {
     return (
         <>
         {
-            showBS &&  <BottomSheet />
+            showBS &&  <BottomSheet discussionId={discussionId} />
         }
         {
             active==='comments' && showBS?

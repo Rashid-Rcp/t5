@@ -5,7 +5,7 @@ import Votes from './Votes';
 import Comments from './Comments';
 import { ActiveTypeContext } from './ActiveTypeContext';
 
-const BottomSheet = () => {
+const BottomSheet = ({discussionId}) => {
   const [expand, setExpand] = useState(false);
   const[active, setActive] =useContext(ActiveTypeContext);
   const animation= new Animated.Value(0);
@@ -38,7 +38,7 @@ const BottomSheet = () => {
         <Animated.View style={[styles.contentHolder,{height:animation}]} >
             <BottomSheetHeader/>
             <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}  onScroll={event=>{handleScroll(event)}}>
-                {active === 'votes'?  <Votes/> : <Comments/>}
+                {active === 'votes'?  <Votes discussionId={discussionId} /> : <Comments discussionId={discussionId} />}
             </ScrollView>
         </Animated.View>
       </>

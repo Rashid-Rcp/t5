@@ -1,5 +1,5 @@
 import React,{useState, useContext, useEffect, useRef} from 'react'
-import { View, Text,StatusBar,StyleSheet,TouchableHighlight,Image,TouchableWithoutFeedback,Keyboard, ActivityIndicator,BackHandler } from 'react-native'
+import { View, Text,StatusBar,StyleSheet,TouchableHighlight,Image,TouchableWithoutFeedback,Keyboard, ActivityIndicator } from 'react-native'
 import Header from '../../common/type2/Header'
 import Footer from './Footer'
 import ActiveTypeContextProvider from './ActiveTypeContext';
@@ -35,38 +35,54 @@ const Details = ({route,navigation}) => {
     const audioPath = global.Link+'/voice/club/';
     const[socketData, setSocketData] = useState({});
     const[nexPageUrl, setNextPageUrl] = useState(null);
-
-    const pusher = new Pusher(pusherConfig.key, pusherConfig); // (1)
+    const[newAnswerAdded,setNewAnswerAdded] = useState({state:false,participant:''});
+    const[isParticipant, setIsParticipant] = useState(false);
+    
    
 
-        useEffect(()=>{
-            const discussionChannel = pusher.subscribe('discussion.'+discussionId);
-            discussionChannel.bind('pusher:subscription_succeeded', () => { // (3)
-            console.log('connected');
-           });
-          discussionChannel.bind('discussion.answer', function (data) {
+    const pusher = new Pusher(pusherConfig.key, pusherConfig); // (1)
+    useEffect(()=>{
+        const discussionChannel = pusher.subscribe('discussion.'+discussionId);
+        discussionChannel.bind('pusher:subscription_succeeded', () => { // (3)
+        console.log('connected');
+        });
+        discussionChannel.bind('discussion.answer', function (data) {
             setSocketData(data.answer);
         });
-        return ()=>{
-            pusher.unsubscribe('discussion.'+discussionId);
-            //setDiscussionAnswers([]);
-        }
-        },[])
+        discussionChannel.bind('discussion.votes', function (data) {
+            setDiscussionVotes(data.votes);
+        });
+        discussionChannel.bind('discussion.comments', function (data) {
+            setDiscussionComments(data.comments);
+        });
+    return ()=>{
+        pusher.unsubscribe('discussion.'+discussionId);
+        //setDiscussionAnswers([]);
+    }
+    },[]);
 
     useEffect(()=>{
      if(Object.keys(socketData).length && nexPageUrl === null){
-        console.log('oooooo');
         let DA = {...discussionAnswers}
         let da_data = DA.data; 
         da_data.push(socketData);
         DA.data = da_data;
         setDiscussionAnswers(DA);
+        setNewAnswerAdded({state:true,participant:socketData.participant});
         setSocketData({});
      }
      else if(Object.keys(socketData).length && nexPageUrl !== null){
-       //indicate new answer
+       setNewAnswerAdded({state:true,participant:socketData.participant})
+       setSocketData({});
      }
-    },[socketData])
+    },[socketData]);
+
+    useEffect(()=>{
+        if(newAnswerAdded.state){
+            setTimeout(function(){ setNewAnswerAdded({state:false,participant:''}) }, 4000);
+        }
+
+    },[newAnswerAdded]);
 
     useEffect(()=>{
         axios.get(global.APILink+'/discussion/details/'+discussionId)
@@ -85,7 +101,21 @@ const Details = ({route,navigation}) => {
         })
         .catch(err=>console.log(err))
 
-    },[discussionId])
+    },[discussionId]);
+
+    useEffect(()=>{
+        if(discussionDetails[0]){
+            let participants = discussionDetails[0].participants;
+            if(participants.includes(Number(user.id))) {
+                setIsParticipant(true);
+            }else{
+                setIsParticipant(false);
+            }
+        }else{
+            setIsParticipant(false);
+        }
+        
+    },[discussionDetails])
 
     const postAnswer = ()=>{
         let VD = {...validation};
@@ -208,6 +238,11 @@ const Details = ({route,navigation}) => {
                 <StatusBar />
                 <Header discussion={discussionDetails} navigation={navigation} />
                 <View style={styles.container}>
+                    {
+                        isLoading && <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+                            <ActivityIndicator size="small" color="#496076" />
+                        </View>
+                    }
                     {
                     !isLoading && <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
                         <View style={[styles.cardHolder,{}]}>
@@ -341,17 +376,21 @@ const Details = ({route,navigation}) => {
                 </View>
                 </TouchableWithoutFeedback>
                 }
-                <View style={styles.micHolder}>
+                {
+                    isParticipant &&  <View style={styles.micHolder}>
                     <Icon type="ionicon" name="mic-circle-sharp" size={60} color={'#5cd187'} onPress={micPressHandler}
                     containerStyle={[{backgroundColor:'#f7f7f7',width:55,height:55,borderRadius:100,},styles.shadow]}
                     iconStyle={{marginTop:-4}}
                     />
                 </View>
-                <View style={{position:'absolute',backgroundColor:'#5cd187',bottom:80,padding:10,left:10,borderRadius:10,}}>
-                  <Text style={{color:'#f7f7f7'}}>RCP added new answer</Text>
-                </View>
+                }
                
-                <Footer vote={vote_discussionEnabled.vote} comment={vote_discussionEnabled.comment} votes={discussionVotes} comments={discussionComments} />
+                {
+                    newAnswerAdded.state &&  <View style={{position:'absolute',backgroundColor:'#5cd187',bottom:70,padding:6,left:10,borderRadius:20,}}>
+                    <Text style={{color:'#f7f7f7',fontSize:12}}>{newAnswerAdded.participant} added new answer</Text>
+                  </View>
+                }
+                <Footer vote={vote_discussionEnabled.vote} comment={vote_discussionEnabled.comment} votes={discussionVotes} comments={discussionComments} discussionId={discussionId} />
             </View>
         </ActiveTypeContextProvider>
     )
