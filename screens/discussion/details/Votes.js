@@ -1,29 +1,46 @@
-import React,{useEffect, useState} from 'react'
-import { View, Text, StyleSheet,Image,TouchableHighlight } from 'react-native';
+import React,{useEffect, useState, useContext} from 'react'
+import { View, Text, StyleSheet,Image,TouchableOpacity } from 'react-native';
 import axios from 'axios';
-
+import { UserContext } from '../../../context/UserContext';
 const Votes = ({discussionId}) => {
+    const[user, setUser] = useContext(UserContext);
     const[participants, setParticipants] = useState([]);
     const[totalVotes, setTotalVotes] = useState(0);
     const[isLoading, setIsLoading] = useState(true);
+    const[voteFor, setVoteFor] = useState(0);
     
     useEffect(()=>{
-        axios.get(global.APILink+'/discussion/participants/'+discussionId)
+        axios.get(global.APILink+'/discussion/votes/'+discussionId+'/'+user.id)
         .then(res=>{
             //console.log(res.data);
             if(res.data.status === 'success'){
                 setParticipants(res.data.participants);
                 setTotalVotes(res.data.total_votes);
+                setVoteFor(res.data.vote_for??0);
                 setIsLoading(false);
             }
         })
         .catch(err=>{console.log(err)})
-    },[])
+    },[]);
+
+    const postVote = (participantId)=>{
+        setVoteFor({"participant_id": participantId})
+       axios.post(global.APILink+'/discussion/vote',
+       {discussionId:discussionId,participantId:participantId,userId:user.id})
+       .then(res=>{
+           console.log(res.data);
+       })
+       .catch(err=>{console.log(err)})
+    }
     return (
         <View style={styles.container}>
             {
                 participants.map((participant ,index)=>{
                     let percentage = parseInt( (participant.votes / totalVotes ) * 100);
+                    let isVoted = false;
+                    if(voteFor){
+                        isVoted = participant.id === voteFor.participant_id?true:false;
+                    }
 
                     return (
                         <View key={index} style={styles.voteItem}>
@@ -34,11 +51,15 @@ const Votes = ({discussionId}) => {
                                     uri: global.Link+'/images/'+participant.image,
                                     }}
                                 />
+                              
                                 <View style={styles.voteHolder}>
-                                    <View style={styles.percentageContainer}>
+                                <TouchableOpacity onPress={()=>postVote(participant.id)}>
+                                    <View style={[styles.percentageContainer,{backgroundColor:isVoted?'#c1f1dc':'#ebebeb'}]}>
                                         <Text style={[styles.percentage,{width:percentage+'%'}]}>{percentage}%</Text>
                                     </View>
+                                    </TouchableOpacity>
                                 </View>
+                                
                             </View>
                             <Text style={styles.name}>{participant.name}</Text>
                         </View>
