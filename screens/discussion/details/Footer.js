@@ -3,15 +3,17 @@ import { View, Text,StyleSheet,TextInput } from 'react-native'
 import { Icon } from 'react-native-elements'
 import BottomSheet from './BottomSheet'
 import { ActiveTypeContext } from './ActiveTypeContext';
-import Pusher from 'pusher-js';
-import pusherConfig from '../../common/pusher.json';
-const Footer = ({vote,comment,votes,comments, discussionId}) => {
+import axios from 'axios';
+import { UserContext } from '../../../context/UserContext';
 
+const Footer = ({vote,comment,votes,comments, discussionId,socketChanel}) => {
+
+    const[user, setUser] = useContext(UserContext);
     const[active, setActive] = useContext(ActiveTypeContext);
     const [showBS, setShowBS] = useState(false);
     const [commentText, onChangeCommentText] = useState("");
     const [postIcon,setPostIcon] = useState(true);
-   
+    const [newComment, setNewComment] = useState(false);
     useEffect(() => {
             if(commentText ===''){
                 setPostIcon(false);
@@ -21,11 +23,19 @@ const Footer = ({vote,comment,votes,comments, discussionId}) => {
     },[commentText]);
     const postComment =()=>{
         onChangeCommentText('');
+        axios.post(global.APILink+'/discussion/comment',
+        {discussion:discussionId,user:user.id,comment:commentText})
+        .then(res=>{
+            if(res.data.status === 'success'){
+                setNewComment(res.data.comment);
+            }
+        })
+        .then(err=>{console.log(err)})
     }
     return (
         <>
         {
-            showBS &&  <BottomSheet discussionId={discussionId} />
+            showBS &&  <BottomSheet discussionId={discussionId} socketChanel={socketChanel} newComment={newComment} />
         }
         {
             active==='comments' && showBS?

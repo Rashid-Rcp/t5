@@ -37,6 +37,7 @@ const Details = ({route,navigation}) => {
     const[nexPageUrl, setNextPageUrl] = useState(null);
     const[newAnswerAdded,setNewAnswerAdded] = useState({state:false,participant:''});
     const[isParticipant, setIsParticipant] = useState(false);
+    const[socketChanel, setSocketChanel] = useState();
     
    
 
@@ -55,6 +56,7 @@ const Details = ({route,navigation}) => {
         discussionChannel.bind('discussion.comments', function (data) {
             setDiscussionComments(data.comments);
         });
+        setSocketChanel(discussionChannel);
     return ()=>{
         pusher.unsubscribe('discussion.'+discussionId);
         //setDiscussionAnswers([]);
@@ -232,6 +234,12 @@ const Details = ({route,navigation}) => {
         setShowRecordingModal(false);
     }
 
+    const isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) => {
+        const paddingToBottom = 20;
+        return layoutMeasurement.height + contentOffset.y >=
+          contentSize.height - paddingToBottom;
+      };
+
     return (
         <ActiveTypeContextProvider>
             <View style={styles.mainContainer}>
@@ -244,7 +252,14 @@ const Details = ({route,navigation}) => {
                         </View>
                     }
                     {
-                    !isLoading && <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
+                    !isLoading && <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} 
+                    onScroll={({nativeEvent}) => {
+                        console.log('scroll');
+                    if (isCloseToBottom(nativeEvent)) {
+                        console.log('bottom')
+                    }
+                    }}
+                    >
                         <View style={[styles.cardHolder,{}]}>
                             <View style={styles.topSection}>
                                 <View style={styles.voiceHolder}>
@@ -390,7 +405,7 @@ const Details = ({route,navigation}) => {
                     <Text style={{color:'#f7f7f7',fontSize:12}}>{newAnswerAdded.participant} added new answer</Text>
                   </View>
                 }
-                <Footer vote={vote_discussionEnabled.vote} comment={vote_discussionEnabled.comment} votes={discussionVotes} comments={discussionComments} discussionId={discussionId} />
+                <Footer vote={vote_discussionEnabled.vote} comment={vote_discussionEnabled.comment} votes={discussionVotes} comments={discussionComments} discussionId={discussionId} socketChanel={socketChanel} />
             </View>
         </ActiveTypeContextProvider>
     )

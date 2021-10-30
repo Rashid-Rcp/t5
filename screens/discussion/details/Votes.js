@@ -1,14 +1,27 @@
 import React,{useEffect, useState, useContext} from 'react'
-import { View, Text, StyleSheet,Image,TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet,Image,TouchableOpacity,ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import { UserContext } from '../../../context/UserContext';
-const Votes = ({discussionId}) => {
+
+const Votes = ({discussionId, socketChanel}) => {
     const[user, setUser] = useContext(UserContext);
     const[participants, setParticipants] = useState([]);
     const[totalVotes, setTotalVotes] = useState(0);
     const[isLoading, setIsLoading] = useState(true);
     const[voteFor, setVoteFor] = useState(0);
+    const[socketData, setSocketData] = useState({});
     
+    const discussionChannel = socketChanel;
+    useEffect(()=>{
+        discussionChannel.bind('discussion.votes', function (data) {
+            if(Number( data.discussion) === Number(discussionId)){
+                setParticipants(data.participants);
+                setTotalVotes(data.votes);
+            }
+        });
+    
+    },[]);
+
     useEffect(()=>{
         axios.get(global.APILink+'/discussion/votes/'+discussionId+'/'+user.id)
         .then(res=>{
@@ -28,12 +41,19 @@ const Votes = ({discussionId}) => {
        axios.post(global.APILink+'/discussion/vote',
        {discussionId:discussionId,participantId:participantId,userId:user.id})
        .then(res=>{
-           console.log(res.data);
+          // console.log(res.data);
        })
        .catch(err=>{console.log(err)})
     }
     return (
-        <View style={styles.container}>
+        <>
+        {
+            isLoading && <View style={{flex:1,justifyContent:'center',alignItems:'center',height:100}}>
+            <ActivityIndicator size="small" color="#496076" />
+        </View>
+        }
+        {
+            !isLoading && <View style={styles.container}>
             {
                 participants.map((participant ,index)=>{
                     let percentage = parseInt( (participant.votes / totalVotes ) * 100);
@@ -67,6 +87,9 @@ const Votes = ({discussionId}) => {
                 })
             }
         </View>
+        }
+        
+        </>
     )
 }
 

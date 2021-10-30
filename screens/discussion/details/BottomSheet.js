@@ -5,15 +5,23 @@ import Votes from './Votes';
 import Comments from './Comments';
 import { ActiveTypeContext } from './ActiveTypeContext';
 
-const BottomSheet = ({discussionId}) => {
+const BottomSheet = ({discussionId, socketChanel, newComment}) => {
   const [expand, setExpand] = useState(false);
   const[active, setActive] =useContext(ActiveTypeContext);
   const animation= new Animated.Value(0);
-  const handleScroll = (event)=>{
-    let scrolling = event.nativeEvent.contentOffset.y;
+  const[isBottom, setIsBottom] = useState(0);
+
+
+  const handleScroll = ({layoutMeasurement, contentOffset, contentSize})=>{
+    let scrolling = contentOffset.y;
     if(scrolling > 100){
       setExpand(true);
     }
+    const paddingToBottom = 20;
+    if( layoutMeasurement.height + contentOffset.y >=
+      contentSize.height - paddingToBottom){
+       setIsBottom(isBottom+1);
+      }
   }
   useEffect(()=>{
     if(expand){
@@ -37,8 +45,9 @@ const BottomSheet = ({discussionId}) => {
         <View style={styles.overlay}></View>
         <Animated.View style={[styles.contentHolder,{height:animation}]} >
             <BottomSheetHeader/>
-            <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}  onScroll={event=>{handleScroll(event)}}>
-                {active === 'votes'?  <Votes discussionId={discussionId} /> : <Comments discussionId={discussionId} />}
+            <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}  nestedScrollEnabled={true} 
+             onScroll={({nativeEvent})=>{handleScroll(nativeEvent)}} >
+                {active === 'votes'?  <Votes discussionId={discussionId} socketChanel={socketChanel} /> : <Comments discussionId={discussionId} newComment={newComment} isBottom={isBottom} />}
             </ScrollView>
         </Animated.View>
       </>
