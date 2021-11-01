@@ -9,7 +9,6 @@ const Votes = ({discussionId, socketChanel}) => {
     const[totalVotes, setTotalVotes] = useState(0);
     const[isLoading, setIsLoading] = useState(true);
     const[voteFor, setVoteFor] = useState(0);
-    const[socketData, setSocketData] = useState({});
     
     const discussionChannel = socketChanel;
     useEffect(()=>{

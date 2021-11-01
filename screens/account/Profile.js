@@ -2,8 +2,9 @@ import React from 'react'
 import { View, Text,StyleSheet,Image } from 'react-native'
 import {Icon} from 'react-native-elements';
 
-
 const Profile = () => {
+    
+
     return (
     <View style={styles.mainContainer}>
         <View style={styles.container}>
@@ -25,9 +26,11 @@ const Profile = () => {
                     <Icon type="fontisto" name="email" color="#496076" size={20}/>
                     <Text style={styles.userMeta}>anna@gmail.com</Text>
                 </View>
+                
             </View>
         </View>
         <Text style={[styles.userMeta,styles.userName]}>anna james</Text>
+        <View style={styles.about}><Text>iam a goog ssnf adne bad of the echo sysstem and the ausio file is what evet so and we all right</Text></View>
         <View style={styles.editIconHolder}>
             <Icon type="feather" name="edit" color="#496076" size={30}/>
         </View>
@@ -39,6 +42,7 @@ export default Profile
 const styles = StyleSheet.create({
     mainContainer:{
         marginTop:20,
+        marginBottom:20,
     },
     container:{
         flexDirection:'row',
@@ -77,6 +81,9 @@ const styles = StyleSheet.create({
         position:'absolute',
         right:10,
         top:10,
+    },
+    about:{
+        paddingHorizontal:10,
     }
 
 });

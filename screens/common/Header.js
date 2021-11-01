@@ -65,12 +65,14 @@ const Header = ({navigation}) => {
         />
       </View>
       <View style={styles.DPHolder}>
+        <TouchableOpacity onPress={()=>navigation.navigate('Account')}>
         <Image
           style={styles.headerDP}
           source={{
             uri: 'https://reactnative.dev/img/tiny_logo.png',
           }}
         />
+        </TouchableOpacity>
       </View>
     </View>
   );
