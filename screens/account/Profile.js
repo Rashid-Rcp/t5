@@ -2,9 +2,8 @@ import React from 'react'
 import { View, Text,StyleSheet,Image } from 'react-native'
 import {Icon} from 'react-native-elements';
 
-const Profile = () => {
+const Profile = ({navigation, userData}) => {
     
-
     return (
     <View style={styles.mainContainer}>
         <View style={styles.container}>
@@ -12,7 +11,7 @@ const Profile = () => {
                 <Image
                     style={styles.userDP}
                     source={{
-                        uri: 'https://reactnative.dev/img/tiny_logo.png',
+                        uri: global.Link+'/images/'+userData.image,
                     }}
                 />
                 
@@ -20,17 +19,17 @@ const Profile = () => {
             <View style={styles.userMetaHolder}>
                 <View style={styles.userMetaItem}>
                     <Icon type="ionicon" name="phone-portrait-outline" color="#496076" size={20}/>
-                    <Text style={styles.userMeta}>955 5956</Text>
+                    <Text style={styles.userMeta}>{userData.phone}</Text>
                 </View>
                 <View style={styles.userMetaItem}>
                     <Icon type="fontisto" name="email" color="#496076" size={20}/>
-                    <Text style={styles.userMeta}>anna@gmail.com</Text>
+                    <Text style={styles.userMeta}>{userData.email}</Text>
                 </View>
                 
             </View>
         </View>
-        <Text style={[styles.userMeta,styles.userName]}>anna james</Text>
-        <View style={styles.about}><Text>iam a goog ssnf adne bad of the echo sysstem and the ausio file is what evet so and we all right</Text></View>
+        <Text style={[styles.userMeta,styles.userName]}>{userData.name}</Text>
+        <View style={styles.about}><Text>{userData.about}</Text></View>
         <View style={styles.editIconHolder}>
             <Icon type="feather" name="edit" color="#496076" size={30}/>
         </View>
@@ -56,7 +55,7 @@ const styles = StyleSheet.create({
         width:70,
         height:70,
         resizeMode:'contain',
-        borderRadius:10,
+        borderRadius:20,
     },
     userMeta:{
         color:'#333333',
@@ -84,6 +83,7 @@ const styles = StyleSheet.create({
     },
     about:{
         paddingHorizontal:10,
+        color:'#333333'
     }
 
 });

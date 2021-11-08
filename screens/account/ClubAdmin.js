@@ -1,61 +1,43 @@
 import React from 'react'
-import { View, Text, StyleSheet ,Image} from 'react-native'
+import { View, Text, StyleSheet ,Image, TouchableOpacity} from 'react-native'
 import {Icon} from 'react-native-elements'
 
-const ClubAdmin = () => {
+const ClubAdmin = ({navigation, clubsAdmin}) => {
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.title}>Clubs you are admin at</Text>
-                <Icon type="ionicon" name="ios-open-outline" color="#496076" size={30}/>
+                <TouchableOpacity onPress={()=>navigation.navigate('ClubList')}>
+                    <Icon type="ionicon" name="ios-open-outline" color="#496076" size={30}/>
+                </TouchableOpacity>
             </View>
             <View style={styles.clubHolder}>
-                <View style={styles.clubItem}>
-                    <Image
-                        style={styles.clubDP}
-                        source={{
-                            uri: 'https://reactnative.dev/img/tiny_logo.png',
-                        }}
-                    />
-                    <Text style={styles.clubName}>@My_CLUB</Text>
-                    <Text>100 Followers</Text>
-                </View>
-
-                <View style={styles.clubItem}>
-                    <Image
-                        style={styles.clubDP}
-                        source={{
-                            uri: 'https://reactnative.dev/img/tiny_logo.png',
-                        }}
-                    />
-                    <Text style={styles.clubName}>@My_CLUB</Text>
-                    <Text>100 Followers</Text>
-                </View>
-
-                <View style={styles.clubItem}>
-                    <Image
-                        style={styles.clubDP}
-                        source={{
-                            uri: 'https://reactnative.dev/img/tiny_logo.png',
-                        }}
-                    />
-                    <Text style={styles.clubName}>@My_CLUB</Text>
-                    <Text>100 Followers</Text>
-                </View>
-
-                <View style={styles.clubItem}>
-                    <Image
-                        style={styles.clubDP}
-                        source={{
-                            uri: 'https://reactnative.dev/img/tiny_logo.png',
-                        }}
-                    />
-                    <Text style={styles.clubName}>@Karathode_health</Text>
-                    <Text>100 Followers</Text>
-                </View>
-                <View style={styles.moreIcon}>
+                {
+                    clubsAdmin.data.map((club, index)=>{
+                        return (
+                        <TouchableOpacity key={index} onPress={()=>navigation.navigate('ClubDetails',{clubId:club.id})}>
+                            <View  style={styles.clubItem}>
+                                    <Image
+                                        style={styles.clubDP}
+                                        source={{
+                                            uri: global.Link+'/images/club/'+club.image,
+                                        }}
+                                    />
+                                    <Text style={styles.clubName}>@{club.name}</Text>
+                                    <Text>{club.followers} Followers</Text>
+                                
+                            </View>
+                        </TouchableOpacity>
+                        )
+                    })
+                }
+                {
+                    clubsAdmin.next_page_url !== null && <View style={styles.moreIcon}>
                     <Icon type="feather" name="more-horizontal" color="#496076" size={50}/>
                 </View>
+                }
+                
             </View>
         </View>
     )

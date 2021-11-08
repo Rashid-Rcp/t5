@@ -1,16 +1,20 @@
 import React from 'react'
-import { View, Text, StyleSheet, Image } from 'react-native'
+import { View, Text, StyleSheet, Image,TouchableOpacity } from 'react-native'
 import { Icon } from 'react-native-elements'
-const Header = () => {
+const Header = ({navigation, userData}) => {
     return (
+        
         <View style={styles.container}>
+           <TouchableOpacity onPress={()=>navigation.goBack()} style={{flexDirection:'row'}} >
             <Icon
                 name='ios-chevron-back-outline'
                 type='ionicon'
                 color='#c1f1dc'
                 />
-                <Text style={styles.accountName}>@Anna</Text>
+                <Text style={styles.accountName}>{userData.name}</Text>
+            </TouchableOpacity>
         </View>
+        
     )
 }
 

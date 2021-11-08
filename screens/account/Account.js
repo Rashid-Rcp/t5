@@ -12,8 +12,8 @@ const Account = ({navigation}) => {
     const[user, setUser] = useContext(UserContext);
     const[isLoading ,setIsLoading] = useState(true);
     const[userData, setUserData] = useState({});
-    const[clubsAdmin, setClubsAdmin] = useState([]);
-    const[clubsFollow, setClubsFollow] = useState([]);
+    const[clubsAdmin, setClubsAdmin] = useState({data:[],nex_page_url:null});
+    const[clubsFollow, setClubsFollow] = useState({data:[],nex_page_url:null});
 
     useEffect(()=>{
         if( user.loaded && 0 !== Number(user.id) ){
@@ -33,12 +33,12 @@ const Account = ({navigation}) => {
 
     return (
         <View style={styles.container}>
-           <Header/>
+           <Header navigation={navigation} userData={userData} />
            <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
-            <Profile userData={userData}/>
+            <Profile navigation={navigation} userData={userData}/>
             {/* <ClubOwn/> */}
-            <ClubAdmin clubsAdmin={clubsAdmin}/>
-            <ClubFollow clubsFollow={clubsFollow}/>
+            <ClubAdmin navigation={navigation} clubsAdmin={clubsAdmin}/>
+            <ClubFollow navigation={navigation} clubsFollow={clubsFollow}/>
            </ScrollView>
         </View>
     )

@@ -8,8 +8,8 @@ import {default as DiscussionCreatorHome} from './screens/discussion/HomeCreator
 import {default as AddNewDiscussion} from './screens/discussion/creator/AddNew'
 import {default as ManageDiscussion} from './screens/discussion/creator/Manage'
 import {default as CreatorAllComments} from './screens/discussion/creator/AllComments'
-
-import SocketTest from './screens/test/SocketTest';
+import {default as ClubDetails} from './screens/club/ClubDetails';
+import {default as ClubList} from './screens/club/ClubList';
 
 import Account from './screens/account/Account'
 import ClubForm from './screens/common/club/ClubForm';
@@ -37,6 +37,29 @@ function discussionStackScreen(){
       <DiscussionStack.Screen name="DiscussionDetails" component={DiscussionDetails} options={{headerShown:false}}/>
     </DiscussionStack.Navigator>
   );
+}
+
+function accountStackScreen(){
+  return(
+    <DiscussionStack.Navigator>
+      <DiscussionStack.Screen name="AccountMain"  component={Account} options={{headerShown:false}}/>
+      <DiscussionStack.Screen name="ClubList" component={ClubList}  options={{title:"Clubs", headerStyle: {
+              backgroundColor: '#496076',
+            },
+            headerTintColor: '#c1f1dc',
+            headerTitleStyle: {
+              color:'#c1f1dc',
+            },}}/>
+      <DiscussionStack.Screen name="ClubDetails" component={ClubDetails} 
+        options={{title:"Club details", headerStyle: {
+              backgroundColor: '#496076',
+            },
+            headerTintColor: '#c1f1dc',
+            headerTitleStyle: {
+              color:'#c1f1dc',
+            },}}/>
+    </DiscussionStack.Navigator>
+  )
 }
 
 
@@ -73,11 +96,10 @@ export default function App() {
     <UserProvider>
     <NavigationContainer>
       <Tab.Navigator tabBar={()=>{}}>
-        {/* <Tab.Screen name="socket" component={SocketTest} options={{headerShown:false}}/> */}
+        <Tab.Screen name="Account" component={accountStackScreen} options={{headerShown:false}}/>
         <Tab.Screen name="Initial" component={initial==='discussionNormal'?discussionStackScreen:discussionCreatorStackScreen} options={{headerShown:false}}/>
         <Tab.Screen name="Discussion" component={discussionStackScreen} options={{headerShown:false}}/>
         <Tab.Screen name="DiscussionCreator" component={discussionCreatorStackScreen} options={{headerShown:false}}/>
-        <Tab.Screen name="Account" component={Account} options={{headerShown:false}}/>
       </Tab.Navigator>
     </NavigationContainer>
     </UserProvider>
