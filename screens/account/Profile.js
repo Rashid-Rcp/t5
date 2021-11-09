@@ -31,7 +31,9 @@ const Profile = ({navigation, userData}) => {
         <Text style={[styles.userMeta,styles.userName]}>{userData.name}</Text>
         <View style={styles.about}><Text>{userData.about}</Text></View>
         <View style={styles.editIconHolder}>
-            <Icon type="feather" name="edit" color="#496076" size={30}/>
+            <Icon type="feather" name="edit" color="#496076" size={30} 
+            onPress={()=>navigation.navigate('EditProfile',{userData:userData})}
+            />
         </View>
     </View>
     )

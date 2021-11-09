@@ -8,13 +8,15 @@ const ClubFollow = ({navigation, clubsFollow}) => {
         <View style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.title}>Clubs you are following</Text>
-                <Icon type="ionicon" name="ios-open-outline" color="#496076" size={30}/>
+                <Icon type="ionicon" name="ios-open-outline" color="#496076" size={30}
+                    onPress={()=>navigation.navigate('ClubList',{type:'member'})}
+                />
             </View>
             <View style={styles.clubHolder}>
                 {
                     clubsFollow.data.map((club, index)=>{
                         return (
-                            <TouchableOpacity key={index}>
+                            <TouchableOpacity key={index} onPress={()=>navigation.navigate('ClubDetails',{clubId:club.id})}>
                                 <View style={styles.clubItem}>
                                     <Image
                                         style={styles.clubDP}

@@ -19,7 +19,6 @@ const ClubDetails = ({navigation, route}) => {
                 setDiscussion(res.data.latest);
                 setMembers(res.data.members.data);
             }
-           
         })
         .catch(err=>{console.log(err)})
     },[])
@@ -38,7 +37,7 @@ const ClubDetails = ({navigation, route}) => {
                             <View style={{flexDirection:'row',justifyContent:'space-between'}}>
                                 <View>
                                     <Text style={styles.clubMembers}>{clubDetails.members} members</Text>
-                                    <Text style={styles.clubDiscussion}>{clubDetails.discussions} discussions</Text>
+                                    <Text style={styles.clubDiscussion}>{clubDetails.discussions??0} discussions</Text>
                                 </View>
                                 <View>
                                     <TouchableOpacity style={styles.joinButton}>
@@ -46,14 +45,14 @@ const ClubDetails = ({navigation, route}) => {
                                     </TouchableOpacity>
                                 </View>
                             </View>
-                           
                         </View>
                     </View>
                     <View style={styles.clubDetailsSec2}>
                         <Text style={{color:'#333333',fontSize:14,}}>{clubDetails.description}</Text>
                     </View>
                 </View>
-                <View style={styles.discussionHolder}>
+                {
+                    discussion &&  <View style={styles.discussionHolder}>
                     <View style={styles.discussionHeader}>
                         <Text style={styles.discussionTitle}>{clubDetails.discussions} Discussions</Text>
                         <Icon type="feather" name="external-link" size={20} color="#496076" />
@@ -68,7 +67,8 @@ const ClubDetails = ({navigation, route}) => {
                         </TouchableOpacity>
                   </View>
                 </View>
-
+                }
+               
                 <View style={styles.memberHolder}>
                     <View style={styles.memberHeader}>
                         <Text style={styles.memberHeaderText}>{clubDetails.members} members</Text>
@@ -86,12 +86,10 @@ const ClubDetails = ({navigation, route}) => {
                                          <Text>{member.name}</Text>
                                          <Text style={styles.metaText}>{member.role}</Text>
                                     </View>
-                                    
                                 </View>
                                 )
                             })
                         }
-                       
                     </View>
                 </View>
             </ScrollView>

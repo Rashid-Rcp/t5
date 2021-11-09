@@ -8,7 +8,7 @@ const ClubAdmin = ({navigation, clubsAdmin}) => {
         <View style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.title}>Clubs you are admin at</Text>
-                <TouchableOpacity onPress={()=>navigation.navigate('ClubList')}>
+                <TouchableOpacity onPress={()=>navigation.navigate('ClubList',{type:'admin'})}>
                     <Icon type="ionicon" name="ios-open-outline" color="#496076" size={30}/>
                 </TouchableOpacity>
             </View>
