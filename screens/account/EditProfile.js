@@ -113,13 +113,15 @@ const EditProfile = ({navigation, route}) => {
         if(isNameValid && isEmailValid && isPhoneValid && isAboutValid){
          setIsSubmitting(true);
           let formData = new FormData();
-          let uriParts = image.split('.');
-          let fileType = uriParts[uriParts.length - 1];
-          formData.append('image', {
-              uri:image,
-              name: `photo.${fileType}`,
-              type: `image/${fileType}`,
-          });
+          if(image.includes('file://')){
+            let uriParts = image.split('.');
+            let fileType = uriParts[uriParts.length - 1];
+            formData.append('image', {
+                uri:image,
+                name: `photo.${fileType}`,
+                type: `image/${fileType}`,
+            });
+          }
           formData.append('id',userId);
           formData.append('name',name);
           formData.append('email',email);
@@ -128,12 +130,13 @@ const EditProfile = ({navigation, route}) => {
           axios.post(global.APILink+'/user/update',formData)
           .then(res=>{
             setIsSubmitting(false);
-            console.log(res.data)
+           // console.log(res.data)
             let validationData = {...validation};
             validationData.email =  res.data.status === 'email_error' ? 'email is already exist' :'';
             validationData.phone =  res.data.status === 'phone_error' ? 'phone is already exist' :'';
             if(res.data.status === 'success'){
-             
+             //redirect to my account.
+             navigation.navigate('AccountMain',{refresh:true});
             }
             else{
               setValidation(validationData);
@@ -155,11 +158,11 @@ const EditProfile = ({navigation, route}) => {
                         />
                         <Icon name="camera" type="ionicon" size={40} color='#333333' onPress={pickImage} />
                     </View>
-                    <Input value={name} label='Name' onChangeText={text=>setName(text)} />
-                    <Input value={phone} label='Phone' onChangeText={text=>setPhone(text)}/>
-                    <Input value={email} label='Email' onChangeText={text=>setEmail(text)} />
-                    <Input multiline={true} numberOfLines={5} value={about} label='About' onChangeText={text=>setAbout(text)} />
-                    <Button type="outline" title="Update" 
+                    <Input value={name} label='Name' errorMessage={validation.name} onChangeText={text=>setName(text)} />
+                    <Input value={phone} label='Phone' errorMessage={validation.phone} onChangeText={text=>setPhone(text)}/>
+                    <Input value={email} label='Email' errorMessage={validation.email} onChangeText={text=>setEmail(text)} />
+                    <Input multiline={true} numberOfLines={5} errorMessage={validation.about} value={about} label='About' onChangeText={text=>setAbout(text)} />
+                    <Button type="outline" title="Update" disabled={isSubmitting}
                      onPress={handleUpdate}
                     />
                 </View>

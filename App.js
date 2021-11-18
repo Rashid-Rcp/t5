@@ -11,6 +11,7 @@ import {default as CreatorAllComments} from './screens/discussion/creator/AllCom
 import {default as ClubDetails} from './screens/club/ClubDetails';
 import {default as ClubList} from './screens/club/ClubList';
 import EditProfile from './screens/account/EditProfile';
+import  {default as PublicProfile} from './screens/account/PublicProfile';
 
 import Account from './screens/account/Account'
 import ClubForm from './screens/common/club/ClubForm';
@@ -61,6 +62,14 @@ function accountStackScreen(){
             },}}/>
       <DiscussionStack.Screen name="EditProfile" component={EditProfile} 
         options={{title:"Edit profile", headerStyle: {
+              backgroundColor: '#496076',
+            },
+            headerTintColor: '#c1f1dc',
+            headerTitleStyle: {
+              color:'#c1f1dc',
+            },}}/>
+      <DiscussionStack.Screen name="PublicProfile" component={PublicProfile} 
+        options={{title:"Profile", headerStyle: {
               backgroundColor: '#496076',
             },
             headerTintColor: '#c1f1dc',

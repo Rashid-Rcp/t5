@@ -77,15 +77,17 @@ const ClubDetails = ({navigation, route}) => {
                         {
                             members.map((member, index)=>{
                                 return (
-                                    <View key={index} style={styles.memberItem}>
-                                    <Image 
-                                        source={{uri:global.Link+'/images/'+member.image}}
-                                        style={styles.userDp}
-                                    />
-                                    <View style={{marginLeft:10}}>
-                                         <Text>{member.name}</Text>
-                                         <Text style={styles.metaText}>{member.role}</Text>
-                                    </View>
+                                <View key={index} style={styles.memberItem}>
+                                    <TouchableOpacity onPress={()=>navigation.navigate('PublicProfile',{profileId:member.id})} style={{flexDirection:'row'}}>
+                                        <Image 
+                                            source={{uri:global.Link+'/images/'+member.image}}
+                                            style={styles.userDp}
+                                        />
+                                        <View style={{marginLeft:10}}>
+                                            <Text>{member.name}</Text>
+                                            <Text style={styles.metaText}>{member.role}</Text>
+                                        </View>
+                                    </TouchableOpacity>
                                 </View>
                                 )
                             })

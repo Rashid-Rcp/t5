@@ -7,13 +7,24 @@ import ClubAdmin from './ClubAdmin'
 import ClubFollow from './ClubFollow'
 import axios from 'axios';
 import { UserContext } from '../../context/UserContext';
-const Account = ({navigation}) => {
+const Account = ({navigation, route}) => {
 
     const[user, setUser] = useContext(UserContext);
     const[isLoading ,setIsLoading] = useState(true);
     const[userData, setUserData] = useState({});
     const[clubsAdmin, setClubsAdmin] = useState({data:[],nex_page_url:null});
     const[clubsFollow, setClubsFollow] = useState({data:[],nex_page_url:null});
+    const[reload, setReload]  =useState(0)
+    
+    useEffect(()=>{
+        if (typeof route.params !== 'undefined') {
+            console.log('kok');
+            const{refresh} = route.params;
+            if(refresh){
+                setReload(reload+1);
+            }
+        }
+    },[route])
 
     useEffect(()=>{
         if( user.loaded && 0 !== Number(user.id) ){
@@ -29,7 +40,7 @@ const Account = ({navigation}) => {
             })
             .catch(err=>{console.log(err)})
         }
-    },[user])
+    },[user, reload])
 
     return (
         <View style={styles.container}>
