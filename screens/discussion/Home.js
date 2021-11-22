@@ -99,7 +99,7 @@ const Home = ({navigation}) => {
           </ScrollView>
             }
             </View>
-            <Footer />
+            <Footer navigation={navigation} />
         </View>
     )
 }

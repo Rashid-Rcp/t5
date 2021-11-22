@@ -1,10 +1,15 @@
-import React,{useState, useEffect} from 'react'
-import { View, Text,StyleSheet,Dimensions,ScrollView, Animated } from 'react-native'
-
-const BottomSheet = () => {
+import React,{useState, useEffect, useContext} from 'react'
+import { View, Text,StyleSheet,Dimensions,ScrollView, Animated,TouchableOpacity,ActivityIndicator } from 'react-native'
+import axios from 'axios';
+import { UserContext } from '../../context/UserContext';
+const BottomSheet = ({navigation}) => {
  
+  const[user, setUser] = useContext(UserContext);
   const [expand, setExpand] = useState(false);
   const animation= new Animated.Value(0);
+  const[discussions, setDiscussions] = useState([]);
+  const[nextPageUrl, setNextPageUrl] = useState(null);
+  const[isLoading, setIsLoading] = useState(true);
   const handleScroll = (event)=>{
     let scrolling = event.nativeEvent.contentOffset.y;
     if(scrolling > 100){
@@ -28,51 +33,52 @@ const BottomSheet = () => {
     }
   },[expand]);
 
+  useEffect(()=>{
+    return ()=>{
+      setDiscussions([]);
+      setNextPageUrl(null);
+    }
+  },[]);
+
+  useEffect(()=>{
+    axios.get(global.APILink+'/discussion/suggestion/'+user.id)
+    .then(res=>{
+      // console.log(res.data.discussions.data);
+      if(res.data.status === 'success'){
+        setDiscussions(res.data.discussions.data);
+        setNextPageUrl(res.data.discussions.next_page_url);
+        setIsLoading(false);
+      }
+    })
+    .catch(err=>{console.log(err)})
+  },[])
+
     return (
       <>
         <View style={styles.overlay}></View>
         <Animated.View style={[styles.contentHolder,{height:animation}]} >
           <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}  onScroll={event=>{handleScroll(event)}}>
-            <View style={styles.contentItem}>
-              <Text style={styles.itemTitle}>What are the important thing to notice while developing a prototype?</Text>
-              <View style={styles.itemMeta}>
-                <Text style={styles.metaText}>10 hrs ago</Text>
-                <Text style={styles.metaText}>@startup_health</Text>
-                <View style={styles.metaStatus}><Text  style={styles.metaText}>Open</Text></View>
+            {
+              isLoading && <View style={{marginTop:50}}>
+                <ActivityIndicator size='small' color="#496076" />
               </View>
-            </View>
-            <View style={styles.contentItem}>
-              <Text style={styles.itemTitle}>What are the important thing to notice while developing a prototype?</Text>
-              <View style={styles.itemMeta}>
-                <Text style={styles.metaText}>10 hrs ago</Text>
-                <Text style={styles.metaText}>@startup_health</Text>
-                <View style={styles.metaStatus}><Text  style={styles.metaText}>Open</Text></View>
-              </View>
-            </View>
-            <View style={styles.contentItem}>
-              <Text style={styles.itemTitle}>What are the important thing to notice while developing a prototype?</Text>
-              <View style={styles.itemMeta}>
-                <Text style={styles.metaText}>10 hrs ago</Text>
-                <Text style={styles.metaText}>@startup_health</Text>
-                <View style={styles.metaStatus}><Text  style={styles.metaText}>Open</Text></View>
-              </View>
-            </View>
-            <View style={styles.contentItem}>
-              <Text style={styles.itemTitle}>What are the important thing to notice while developing a prototype?</Text>
-              <View style={styles.itemMeta}>
-                <Text style={styles.metaText}>10 hrs ago</Text>
-                <Text style={styles.metaText}>@startup_health</Text>
-                <View style={styles.metaStatus}><Text  style={styles.metaText}>Open</Text></View>
-              </View>
-            </View>
-            <View style={styles.contentItem}>
-              <Text style={styles.itemTitle}>What are the important thing to notice while developing a prototype?</Text>
-              <View style={styles.itemMeta}>
-                <Text style={styles.metaText}>10 hrs ago</Text>
-                <Text style={styles.metaText}>@startup_health</Text>
-                <View style={styles.metaStatus}><Text  style={styles.metaText}>Open</Text></View>
-              </View>
-            </View>
+            }
+            {
+              discussions.map((discussion, index)=>{
+                return(
+                  <View key={discussion.id} style={styles.contentItem}>
+                    <TouchableOpacity onPress={()=>{navigation.navigate('DiscussionDetails',{discussionId:discussion.id})}} >
+                      <Text style={styles.itemTitle}>{discussion.topic}</Text>
+                      <View style={styles.itemMeta}>
+                        <Text style={styles.metaText}>{discussion.time}</Text>
+                        <Text style={styles.metaText}>@{discussion.club}</Text>
+                        <View style={styles.metaStatus}><Text  style={styles.metaText}>{discussion.status}</Text></View>
+                      </View>
+                    </TouchableOpacity>
+                </View>
+                )
+              })
+            }
           </ScrollView>
         </Animated.View>
       </>

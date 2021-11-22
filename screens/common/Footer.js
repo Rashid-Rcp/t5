@@ -4,10 +4,10 @@ import {View, Text, StyleSheet, TextInput, Dimensions} from 'react-native';
 import { SearchBar, Icon} from 'react-native-elements';
 import BottomSheet from './BottomSheet';
 
-const Footer = () => {
+const Footer = ({navigation}) => {
  
   const [search,setSearch] = useState(''); 
-  const updateSearch = (search)=>{ setSearch(search) }
+  const updateSearch = (search)=>{ setSearch(search);setSuggestion(true) }
   const [suggestion, setSuggestion] = useState(false);
 
   return (
@@ -31,7 +31,7 @@ const Footer = () => {
       </View>
     </View>
     {
-      suggestion && <BottomSheet/>
+      suggestion && <BottomSheet navigation={navigation} />
     }
     </>
   );
