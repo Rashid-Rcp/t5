@@ -10,6 +10,10 @@ const Footer = ({navigation}) => {
   const updateSearch = (search)=>{ setSearch(search);setSuggestion(true) }
   const [suggestion, setSuggestion] = useState(false);
 
+  const bottomSheetHandle =()=>{
+    setSuggestion(!suggestion);
+    setSearch('');
+  }
   return (
     <>
     <View style={styles.footerContainer}>
@@ -27,11 +31,11 @@ const Footer = ({navigation}) => {
         />
       </View>
       <View>
-      <Icon type="material-community" name="circle-expand" color="#c1f1dc" size={35} onPress={()=>setSuggestion(!suggestion)} style={styles.expandIcon}/>
+      <Icon type="material-community" name="circle-expand" color="#c1f1dc" size={35} onPress={bottomSheetHandle} style={styles.expandIcon}/>
       </View>
     </View>
     {
-      suggestion && <BottomSheet navigation={navigation} />
+      suggestion && <BottomSheet navigation={navigation} search={search} />
     }
     </>
   );

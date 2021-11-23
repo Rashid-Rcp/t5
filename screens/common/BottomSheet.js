@@ -2,7 +2,7 @@ import React,{useState, useEffect, useContext} from 'react'
 import { View, Text,StyleSheet,Dimensions,ScrollView, Animated,TouchableOpacity,ActivityIndicator } from 'react-native'
 import axios from 'axios';
 import { UserContext } from '../../context/UserContext';
-const BottomSheet = ({navigation}) => {
+const BottomSheet = ({navigation, search}) => {
  
   const[user, setUser] = useContext(UserContext);
   const [expand, setExpand] = useState(false);
@@ -41,17 +41,31 @@ const BottomSheet = ({navigation}) => {
   },[]);
 
   useEffect(()=>{
-    axios.get(global.APILink+'/discussion/suggestion/'+user.id)
-    .then(res=>{
-      // console.log(res.data.discussions.data);
-      if(res.data.status === 'success'){
-        setDiscussions(res.data.discussions.data);
-        setNextPageUrl(res.data.discussions.next_page_url);
-        setIsLoading(false);
-      }
-    })
-    .catch(err=>{console.log(err)})
-  },[])
+    if(search ===''){
+      axios.get(global.APILink+'/discussion/suggestion/'+user.id)
+      .then(res=>{
+        // console.log(res.data.discussions.data);
+        if(res.data.status === 'success'){
+          setDiscussions(res.data.discussions.data);
+          setNextPageUrl(res.data.discussions.next_page_url);
+          setIsLoading(false);
+        }
+      })
+      .catch(err=>{console.log(err)})
+    }
+    else if(search.length > 3 ){
+      axios.get(global.APILink+'/discussion/search/'+search)
+      .then(res=>{
+        //console.log(res.data.discussions.data);
+        if(res.data.status === 'success'){
+          setDiscussions(res.data.discussions.data);
+          setNextPageUrl(res.data.discussions.next_page_url);
+          setIsLoading(false);
+        }
+      })
+      .catch(err=>{console.log(err)})
+    }
+  },[search])
 
     return (
       <>
@@ -64,7 +78,7 @@ const BottomSheet = ({navigation}) => {
               </View>
             }
             {
-              discussions.map((discussion, index)=>{
+             search ==='' && discussions.map((discussion, index)=>{
                 return(
                   <View key={discussion.id} style={styles.contentItem}>
                     <TouchableOpacity onPress={()=>{navigation.navigate('DiscussionDetails',{discussionId:discussion.id})}} >
@@ -77,6 +91,19 @@ const BottomSheet = ({navigation}) => {
                     </TouchableOpacity>
                 </View>
                 )
+              })
+            }
+            
+            {
+              search !== '' && discussions.map((discussion, index)=>{
+                return(
+                  <View key={discussion.id} style={[styles.contentItem,{borderRadius:12}]}>
+                    <TouchableOpacity onPress={()=>{navigation.navigate('DiscussionDetails',{discussionId:discussion.id})}} >
+                      <Text style={[styles.itemTitle,{fontSize:16}]}>{discussion.topic}</Text>
+                    </TouchableOpacity>
+                 </View>
+                )
+              
               })
             }
           </ScrollView>
