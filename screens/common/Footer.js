@@ -1,41 +1,30 @@
 /* eslint-disable prettier/prettier */
-import React,{ useState, useRef, useMemo, useCallback} from 'react';
-import {View, Text, StyleSheet, TextInput, Dimensions} from 'react-native';
-import { SearchBar, Icon} from 'react-native-elements';
+import React,{ useState} from 'react';
+import {View, Text, StyleSheet, TouchableWithoutFeedback} from 'react-native';
+import {Icon} from 'react-native-elements';
 import BottomSheet from './BottomSheet';
 
 const Footer = ({navigation}) => {
  
-  const [search,setSearch] = useState(''); 
-  const updateSearch = (search)=>{ setSearch(search);setSuggestion(true) }
   const [suggestion, setSuggestion] = useState(false);
-
   const bottomSheetHandle =()=>{
     setSuggestion(!suggestion);
-    setSearch('');
   }
   return (
     <>
     <View style={styles.footerContainer}>
-      <View style={{flex:1}}>
-        <SearchBar
-          placeholder="Search a topic"
-          value={search}
-          leftIconContainerStyle={styles.leftIconContainerStyle}
-          containerStyle={styles.containerStyle}
-          inputContainerStyle={styles.inputContainerStyle}
-          inputStyle={styles.inputStyle}
-          placeholderTextColor ="#c1f1dc"
-          searchIcon = {<Icon type="antdesign" name="search1" color="#c1f1dc" size={25}/>}
-          onChangeText={updateSearch}
-        />
-      </View>
+      <TouchableWithoutFeedback onPress={()=>navigation.navigate('Search')}>
+        <View style={{flexDirection:'row',alignItems:'center',paddingHorizontal:10,}}>
+          <Icon type="fontisto" name="search" color="#c1f1dc" size={24} onPress={bottomSheetHandle} style={styles.expandIcon}/>
+          <Text style={{color:'#c1f1dc',fontSize:17,paddingLeft:10}}>Search a topic</Text>
+        </View>
+      </TouchableWithoutFeedback>
       <View>
-      <Icon type="material-community" name="circle-expand" color="#c1f1dc" size={35} onPress={bottomSheetHandle} style={styles.expandIcon}/>
+        <Icon type="material-community" name="circle-expand" color="#c1f1dc" size={35} onPress={bottomSheetHandle} style={styles.expandIcon}/>
       </View>
     </View>
     {
-      suggestion && <BottomSheet navigation={navigation} search={search} />
+      suggestion &&<BottomSheet navigation={navigation}/>
     }
     </>
   );
@@ -76,10 +65,13 @@ const styles = StyleSheet.create({
     },
     footerContainer:{
       backgroundColor:'#496076',
-      justifyContent:"flex-start",
+      justifyContent:'space-between',
       flexDirection:'row',
       alignItems:'center',
-      position:'relative'
+      position:'relative',
+      zIndex:2,
+      paddingVertical:7,
+
     }
 });
 

@@ -1,8 +1,8 @@
 import React,{useState, useEffect, useContext} from 'react'
-import { View, Text,StyleSheet,Dimensions,ScrollView, Animated,TouchableOpacity,ActivityIndicator } from 'react-native'
+import { View, Text,StyleSheet,Dimensions,ScrollView, Animated,TouchableOpacity,ActivityIndicator,TouchableWithoutFeedback } from 'react-native'
 import axios from 'axios';
 import { UserContext } from '../../context/UserContext';
-const BottomSheet = ({navigation, search}) => {
+const BottomSheet = ({navigation}) => {
  
   const[user, setUser] = useContext(UserContext);
   const [expand, setExpand] = useState(false);
@@ -10,6 +10,7 @@ const BottomSheet = ({navigation, search}) => {
   const[discussions, setDiscussions] = useState([]);
   const[nextPageUrl, setNextPageUrl] = useState(null);
   const[isLoading, setIsLoading] = useState(true);
+  const[clubs, setClubs] = useState([]);
   const handleScroll = (event)=>{
     let scrolling = event.nativeEvent.contentOffset.y;
     if(scrolling > 100){
@@ -41,7 +42,6 @@ const BottomSheet = ({navigation, search}) => {
   },[]);
 
   useEffect(()=>{
-    if(search ===''){
       axios.get(global.APILink+'/discussion/suggestion/'+user.id)
       .then(res=>{
         // console.log(res.data.discussions.data);
@@ -52,24 +52,11 @@ const BottomSheet = ({navigation, search}) => {
         }
       })
       .catch(err=>{console.log(err)})
-    }
-    else if(search.length > 3 ){
-      axios.get(global.APILink+'/discussion/search/'+search)
-      .then(res=>{
-        //console.log(res.data.discussions.data);
-        if(res.data.status === 'success'){
-          setDiscussions(res.data.discussions.data);
-          setNextPageUrl(res.data.discussions.next_page_url);
-          setIsLoading(false);
-        }
-      })
-      .catch(err=>{console.log(err)})
-    }
-  },[search])
+    
+  },[])
 
     return (
       <>
-        <View style={styles.overlay}></View>
         <Animated.View style={[styles.contentHolder,{height:animation}]} >
           <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}  onScroll={event=>{handleScroll(event)}}>
             {
@@ -78,7 +65,7 @@ const BottomSheet = ({navigation, search}) => {
               </View>
             }
             {
-             search ==='' && discussions.map((discussion, index)=>{
+             discussions.map((discussion, index)=>{
                 return(
                   <View key={discussion.id} style={styles.contentItem}>
                     <TouchableOpacity onPress={()=>{navigation.navigate('DiscussionDetails',{discussionId:discussion.id})}} >
@@ -93,23 +80,12 @@ const BottomSheet = ({navigation, search}) => {
                 )
               })
             }
-            
-            {
-              search !== '' && discussions.map((discussion, index)=>{
-                return(
-                  <View key={discussion.id} style={[styles.contentItem,{borderRadius:12}]}>
-                    <TouchableOpacity onPress={()=>{navigation.navigate('DiscussionDetails',{discussionId:discussion.id})}} >
-                      <Text style={[styles.itemTitle,{fontSize:16}]}>{discussion.topic}</Text>
-                    </TouchableOpacity>
-                 </View>
-                )
-              
-              })
-            }
           </ScrollView>
         </Animated.View>
+        <View style={styles.overlay}></View>
       </>
     )
+    
 }
 
 export default BottomSheet
@@ -122,6 +98,7 @@ const styles = StyleSheet.create({
     left: 0,
     right:0,
     backgroundColor: 'rgba(52, 52, 52, 0.3)',height:'85.8%',
+    zIndex:0,
   },
   contentHolder: {
     position: 'absolute',
@@ -136,6 +113,7 @@ const styles = StyleSheet.create({
     borderWidth:1,
     borderColor:'#fff',
     borderBottomWidth:0,
+    zIndex:1,
   },
   contentItem:{
     backgroundColor:'#f7f7f7',

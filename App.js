@@ -12,7 +12,7 @@ import {default as ClubDetails} from './screens/club/ClubDetails';
 import {default as ClubList} from './screens/club/ClubList';
 import EditProfile from './screens/account/EditProfile';
 import  {default as PublicProfile} from './screens/account/PublicProfile';
-
+import {default as Search} from './screens/common/Search';
 import Account from './screens/account/Account'
 import ClubForm from './screens/common/club/ClubForm';
 import { UserProvider } from './context/UserContext';
@@ -37,6 +37,22 @@ function discussionStackScreen(){
     <DiscussionStack.Navigator>
       <DiscussionStack.Screen name="DiscussionHome"  component={DiscussionHome} options={{headerShown:false}}/>
       <DiscussionStack.Screen name="DiscussionDetails" component={DiscussionDetails} options={{headerShown:false}}/>
+      <DiscussionStack.Screen name="ClubDetails" component={ClubDetails} 
+        options={{title:"Club details", headerStyle: {
+          backgroundColor: '#496076',
+        },
+        headerTintColor: '#c1f1dc',
+        headerTitleStyle: {
+          color:'#c1f1dc',
+        },}}/>
+        <DiscussionStack.Screen name="Search" component={Search} 
+        options={{title:"Search a topic", headerStyle: {
+          backgroundColor: '#496076',
+        },
+        headerTintColor: '#c1f1dc',
+        headerTitleStyle: {
+          color:'#c1f1dc',
+        },}}/>
     </DiscussionStack.Navigator>
   );
 }
