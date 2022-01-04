@@ -1,17 +1,20 @@
 import React,{useContext,useEffect,useState} from 'react'
-import { View, Text, StyleSheet,StatusBar, ScrollView,TouchableOpacity,ActivityIndicator } from 'react-native'
+import { View, Text, StyleSheet,StatusBar, ScrollView,TouchableOpacity,ActivityIndicator, RefreshControl } from 'react-native';
 import {Icon} from 'react-native-elements';
 import { UserContext } from '../../context/UserContext';
 import Header from '../common/Header';
 import LoginForm from '../common/LoginForm';
 import axios from 'axios';
 
-
 const HomeCreator = ({navigation}) => {
 
-    const[user,setUser] = useContext(UserContext);
-    const[discussions, setDiscussions] = useState([]);
-    const[isLoading, setIsLoading]  = useState(true);
+    const [user, setUser] = useContext(UserContext);
+    const [discussions, setDiscussions] = useState([]);
+    const [isLoading, setIsLoading]  = useState(true);
+    const [nextPageUrl, setNextPageUrl] = useState(null);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+    const [reload, setReload] = useState(0);
     
     useEffect(()=>{
         if(user.loaded && user.club === false){
@@ -21,11 +24,13 @@ const HomeCreator = ({navigation}) => {
 
     useEffect(()=>{
         if(user.loaded && user.club === true){
-            axios.get(global.APILink+'/discussion/user/'+user.id)
+            axios.get(global.APILink + '/discussion/user/' + user.id)
             .then(res=>{
                 setIsLoading(false);
+                setRefreshing(false);
                 if(res.data.status === 'success'){
-                    setDiscussions(res.data.discussions)
+                    setDiscussions(res.data.discussions.data);
+                    setNextPageUrl(res.data.discussions.next_page_url);
                 }
                 else{
                     console.log('error occurred');
@@ -33,7 +38,40 @@ const HomeCreator = ({navigation}) => {
             })
             .catch(err=>{console.log(err)})
         }
-    },[user]);
+    },[user, reload]);
+
+    const handleScroll = ({layoutMeasurement, contentOffset, contentSize})=>{
+        const paddingToBottom = 20;
+        if ( layoutMeasurement.height + contentOffset.y >=
+          contentSize.height - paddingToBottom){
+          if (nextPageUrl){
+            setIsLoadingMore(true);
+          }
+          }
+      };
+
+      const onRefresh = ()=>{
+        setReload(reload + 1);
+        setRefreshing(true);
+      };
+
+      useEffect(()=>{
+        if (isLoadingMore && nextPageUrl){
+          console.log(nextPageUrl);
+          axios.get(nextPageUrl)
+          .then(res=>{
+            if (res.data.status === 'success'){
+              let discussionData = [...discussions,...res.data.discussions.data];
+              setDiscussions(discussionData);
+              setNextPageUrl(res.data.discussions.next_page_url);
+              console.log(res.data.discussions.next_page_url);
+              setIsLoadingMore(false);
+            }
+          })
+          .catch(err=>{console.log(err)})
+        }
+    
+      },[isLoadingMore]);
 
 
 
@@ -59,7 +97,15 @@ const HomeCreator = ({navigation}) => {
         <View style={styles.mainContainer}>
             <StatusBar />
             <Header navigation={navigation}/>
-            <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator ={false}>
+            <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator ={false}
+            onScroll={({nativeEvent})=>{handleScroll(nativeEvent)}}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+              />
+            }
+            >
                 {
                     isLoading && <View style={{flex:1,justifyContent:'center',alignItems:'center',paddingTop:'50%'}}>
                         <ActivityIndicator size='small' color="#496076"/>
@@ -103,7 +149,9 @@ const HomeCreator = ({navigation}) => {
                         )
                     })
                 }
-                 
+                 {
+                     isLoadingMore && <ActivityIndicator style={styles.marginTop} size="small" color="#496076" />
+                 }
                 <View style={{height:100}}></View>
             </ScrollView>
             <View style={styles.addNew}>
@@ -210,5 +258,6 @@ const styles = StyleSheet.create({
         shadowRadius: 10,
         elevation: 10,
     },
+    marginTop:{marginTop:20},
 
 });

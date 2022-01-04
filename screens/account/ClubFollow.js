@@ -25,7 +25,7 @@ const ClubFollow = ({navigation, clubsFollow}) => {
                                         }}
                                     />
                                     <Text style={styles.clubName}>@{club.name}</Text>
-                                    <Text>{club.followers} Followers</Text>
+                                    <Text>{club.followers} Members</Text>
                                 </View>
                             </TouchableOpacity>
                         )

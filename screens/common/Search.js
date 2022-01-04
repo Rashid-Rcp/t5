@@ -1,7 +1,7 @@
 import React,{useState, useEffect, useRef} from 'react'
 import { View, Text, StyleSheet, ScrollView,TouchableOpacity} from 'react-native'
 import axios from 'axios';
-import { SearchBar, Input} from 'react-native-elements';
+import { SearchBar} from 'react-native-elements';
 const Search = ({navigation}) => {
     const[text, setText] = useState('');
     const[discussions, setDiscussions] = useState([]);

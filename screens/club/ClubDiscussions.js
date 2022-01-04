@@ -1,54 +1,17 @@
-import React,{useContext, useState, useEffect} from 'react';
+import React,{useState, useEffect} from 'react';
 import { View, Text, StyleSheet,StatusBar, ScrollView,TouchableOpacity, ActivityIndicator,RefreshControl,Image } from 'react-native'
-import Header from '../common/Header';
-import Footer from '../common/Footer';
+
 import { Icon } from 'react-native-elements';
 import axios from 'axios';
 
-import { UserContext } from '../../context/UserContext';
-const Home = ({navigation}) => {
-
-  const [user, setUser] = useContext(UserContext);
-  const [participantFilter, setParticipantFilter] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
+const ClubDiscussions = ({navigation, route}) => {
+  const {clubId} = route.params;
   const [discussions, setDiscussions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [nextPageUrl, setNextPageUrl] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [reload, setReload] = useState(0);
-
-  useEffect(() => {
-    if (user.loaded && user.id !== '0'){
-      if (!participantFilter){
-        axios.get(global.APILink + '/discussion/user_follow/all/' + user.id)
-        .then(res=>{
-          setIsLoading(false);
-          setRefreshing(false);
-          if (res.data.status === 'success'){
-            setDiscussions(res.data.discussions.data);
-            setNextPageUrl(res.data.discussions.next_page_url);
-          }
-        })
-        .catch(err=>{console.log(err);});
-     }
-     else {
-      axios.get(global.APILink + '/discussion/user_follow/participant/' + user.id)
-      .then(res=>{
-        setIsLoading(false);
-        setRefreshing(false);
-        if (res.data.status === 'success'){
-          setDiscussions(res.data.discussions);
-        }
-      })
-      .catch(err=>{console.log(err); });
-     }
-    }
-    else {
-      console.log('no user');
-      //show suggestion with most popular
-    }
-  }, [participantFilter,user,reload]);
 
   const handleScroll = ({layoutMeasurement, contentOffset, contentSize})=>{
     const paddingToBottom = 20;
@@ -59,6 +22,21 @@ const Home = ({navigation}) => {
       }
       }
   };
+
+  useEffect(()=>{
+    axios.get(global.APILink + '/club/discussions/' + clubId)
+    .then(res=>{
+      // console.log(res.data);
+      if (res.data.status === 'success'){
+        setIsLoading(false);
+        setRefreshing(false);
+        setDiscussions(res.data.discussions.data);
+        setNextPageUrl(res.data.discussions.next_page_url);
+      }
+    }).
+    catch(err=>{console.log(err);});
+  },[reload]);
+
 
   useEffect(()=>{
     if (isLoadingMore && nextPageUrl){
@@ -82,31 +60,10 @@ const Home = ({navigation}) => {
     setRefreshing(true);
   };
 
-  const handleParticipatingFilter = ()=>{
-    setParticipantFilter(!participantFilter);
-    setShowFilter(false);
-  };
     return (
         <View style={styles.mainContainer}>
             <StatusBar />
-            <Header navigation={navigation}/>
             <View style={styles.container}>
-            <View style={styles.filter}>
-              {
-                showFilter &&  <View style={styles.filterLink}>
-                  <TouchableOpacity onPress={handleParticipatingFilter}>
-                    <Text style={styles.filterText}>{participantFilter?'Show all discussions':'Show participating discussions only'}</Text>
-                  </TouchableOpacity>
-              </View>
-              }
-              <TouchableOpacity onPress={()=>setShowFilter(!showFilter)}>
-                <Image
-                  style={styles.filter_icon}
-                  source={require('../../assets/images/filter-icon2.png')}
-                />
-              </TouchableOpacity>
-              {/* <Icon onPress={()=>setShowFilter(!showFilter)} name="filter" type="fontisto" color={participantFilter?'#444':'#496076'} size={30} /> */}
-            </View>
             {
              !refreshing && isLoading && <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
                   <ActivityIndicator size="small" color="#496076" />
@@ -152,7 +109,6 @@ const Home = ({navigation}) => {
           </ScrollView>
             }
             </View>
-            <Footer navigation={navigation} />
         </View>
     )
 }
@@ -231,4 +187,4 @@ const styles = StyleSheet.create({
       },
 });
 
-export default Home;
+export default ClubDiscussions;

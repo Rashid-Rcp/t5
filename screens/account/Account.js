@@ -1,10 +1,10 @@
 import React,{useEffect, useState, useContext} from 'react'
-import { View, Text,StyleSheet,ScrollView,TouchableOpacity, Touchable } from 'react-native'
-import Header from './Header'
-import Profile from './Profile'
-import ClubOwn from './ClubOwn'
-import ClubAdmin from './ClubAdmin'
-import ClubFollow from './ClubFollow'
+import { View, Text,StyleSheet,ScrollView,TouchableOpacity, RefreshControl } from 'react-native'
+import Header from './Header';
+import Profile from './Profile';
+import ClubOwn from './ClubOwn';
+import ClubAdmin from './ClubAdmin';
+import ClubFollow from './ClubFollow';
 import axios from 'axios';
 import { UserContext } from '../../context/UserContext';
 const Account = ({navigation, route}) => {
@@ -14,38 +14,50 @@ const Account = ({navigation, route}) => {
     const[userData, setUserData] = useState({});
     const[clubsAdmin, setClubsAdmin] = useState({data:[],nex_page_url:null});
     const[clubsFollow, setClubsFollow] = useState({data:[],nex_page_url:null});
-    const[reload, setReload]  =useState(0)
+    const[reload, setReload]  = useState(0);
+    const [refresh, setRefresh] = useState(false);
     
     useEffect(()=>{
         if (typeof route.params !== 'undefined') {
-            console.log('kok');
+            //console.log('kok');
             const{refresh} = route.params;
             if(refresh){
-                setReload(reload+1);
+                setReload(reload + 1);
             }
         }
-    },[route])
+    },[route]);
 
     useEffect(()=>{
         if( user.loaded && 0 !== Number(user.id) ){
             axios.get(global.APILink+'/user/data/'+user.id)
             .then(res=>{
-                //console.log(res.data);
                 setIsLoading(false);
-                if(res.data.status === 'success'){
+                setRefresh(false);
+                if (res.data.status === 'success'){
                     setUserData(res.data.userData);
                     setClubsAdmin(res.data.clubsAdmin);
                     setClubsFollow(res.data.clubsFollow);
                 }
             })
-            .catch(err=>{console.log(err)})
+            .catch(err=>{console.log(err);});
         }
-    },[user, reload])
+    },[user, reload]);
+
+    const onRefresh = ()=>{
+        setRefresh(true);
+        setReload(reload + 1);
+    };
 
     return (
         <View style={styles.container}>
            <Header navigation={navigation} userData={userData} />
-           <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
+           <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}
+            refreshControl={
+                <RefreshControl
+                  refreshing={refresh}
+                  onRefresh={onRefresh}
+                />}
+            >
             <Profile navigation={navigation} userData={userData}/>
             {/* <ClubOwn/> */}
             <ClubAdmin navigation={navigation} clubsAdmin={clubsAdmin}/>

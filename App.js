@@ -10,6 +10,7 @@ import {default as ManageDiscussion} from './screens/discussion/creator/Manage'
 import {default as CreatorAllComments} from './screens/discussion/creator/AllComments'
 import {default as ClubDetails} from './screens/club/ClubDetails';
 import {default as ClubList} from './screens/club/ClubList';
+import {default as ClubDiscussions} from './screens/club/ClubDiscussions';
 import EditProfile from './screens/account/EditProfile';
 import  {default as PublicProfile} from './screens/account/PublicProfile';
 import {default as Search} from './screens/common/Search';
@@ -37,7 +38,7 @@ function discussionStackScreen(){
     <DiscussionStack.Navigator>
       <DiscussionStack.Screen name="DiscussionHome"  component={DiscussionHome} options={{headerShown:false}}/>
       <DiscussionStack.Screen name="DiscussionDetails" component={DiscussionDetails} options={{headerShown:false}}/>
-      <DiscussionStack.Screen name="ClubDetails" component={ClubDetails} 
+      <DiscussionStack.Screen name="ClubDetails" component={ClubDetails}
         options={{title:"Club details", headerStyle: {
           backgroundColor: '#496076',
         },
@@ -68,7 +69,7 @@ function accountStackScreen(){
             headerTitleStyle: {
               color:'#c1f1dc',
             },}}/>
-      <DiscussionStack.Screen name="ClubDetails" component={ClubDetails} 
+      <DiscussionStack.Screen name="ClubDetails" component={ClubDetails}
         options={{title:"Club details", headerStyle: {
               backgroundColor: '#496076',
             },
@@ -92,6 +93,17 @@ function accountStackScreen(){
             headerTitleStyle: {
               color:'#c1f1dc',
             },}}/>
+      <DiscussionStack.Screen name="DiscussionDetails" component={DiscussionDetails} options={{headerShown:false}}/>
+      <DiscussionStack.Screen name="ClubDiscussions" component={ClubDiscussions}
+      options={{title:'Club discussions', headerStyle: {
+        backgroundColor: '#496076',
+      },
+      headerTintColor: '#c1f1dc',
+      headerTitleStyle: {
+        color:'#c1f1dc',
+      },}}/>
+
+
     </DiscussionStack.Navigator>
   )
 }

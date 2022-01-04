@@ -1,5 +1,5 @@
 import React,{useState, useContext, useEffect, useRef} from 'react'
-import { View, Text,StatusBar,StyleSheet,TouchableHighlight,Image,TouchableWithoutFeedback,Keyboard, ActivityIndicator } from 'react-native'
+import { View, Text,StatusBar,StyleSheet,TouchableHighlight,Image,TouchableWithoutFeedback,Keyboard, ActivityIndicator, RefreshControl } from 'react-native'
 import Header from '../../common/type2/Header'
 import Footer from './Footer'
 import ActiveTypeContextProvider from './ActiveTypeContext';
@@ -14,36 +14,37 @@ import pusherConfig from '../../common/pusher.json';
 
 const Details = ({route,navigation}) => {
 
-    const[user, SetUser] = useContext(UserContext);
-    const[isLoading, setIsLoading] = useState(true);
-    const[answerVoice, setAnswerVoice] = useState('');
-    const[answerText, setAnswerText] = useState('');
-    const[answerDuration, setAnswerDuration] = useState('');
-    const[showRecordingModal, setShowRecordingModal] = useState(false);
-    const[recording, setRecording] = useState(undefined);
+    const [user, SetUser] = useContext(UserContext);
+    const [isLoading, setIsLoading] = useState(true);
+    const [answerVoice, setAnswerVoice] = useState('');
+    const [answerText, setAnswerText] = useState('');
+    const [answerDuration, setAnswerDuration] = useState('');
+    const [showRecordingModal, setShowRecordingModal] = useState(false);
+    const [recording, setRecording] = useState(undefined);
     const interval = useRef(null);
     const allowedTime = 600;//10m
-    const[recordingTime, setRecordingTime] = useState({m:0,s:0,ts:0});
-    const[validation, setValidation] = useState({voiceValidation:'',textValidation:''});
-    const[isSubmitting, setIsSubmitting] = useState(false);
-    const[discussionDetails, setDiscussionDetails] = useState([]);
-    const[discussionAnswers,setDiscussionAnswers] = useState([]);
-    const[discussionVotes, setDiscussionVotes] = useState(0);
-    const[discussionComments, setDiscussionComments] = useState(0);
-    const[vote_discussionEnabled, setVote_discussionEnabled] = useState({vote:false,comment:false})
+    const [recordingTime, setRecordingTime] = useState({m:0,s:0,ts:0});
+    const [validation, setValidation] = useState({voiceValidation:'',textValidation:''});
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [vote_discussionEnabled, setVote_discussionEnabled] = useState({vote:false,comment:false})
+    const [discussionDetails, setDiscussionDetails] = useState([]);
+    const [discussionAnswers,setDiscussionAnswers] = useState([]);
+    const [discussionVotes, setDiscussionVotes] = useState(0);
+    const [discussionComments, setDiscussionComments] = useState(0);
     const {discussionId} = route.params;
     const audioPath = global.Link+'/voice/club/';
-    const[socketData, setSocketData] = useState({});
-    const[nexPageUrl, setNextPageUrl] = useState(null);
-    const[newAnswerAdded,setNewAnswerAdded] = useState({state:false,participant:''});
-    const[isParticipant, setIsParticipant] = useState(false);
-    const[socketChanel, setSocketChanel] = useState();
-    
-   
-
+    const [socketData, setSocketData] = useState({});
+    const [nextPageUrl, setNextPageUrl] = useState(null);
+    const [newAnswerAdded,setNewAnswerAdded] = useState({state:false,participant:''});
+    const [isParticipant, setIsParticipant] = useState(false);
+    const [socketChanel, setSocketChanel] = useState();
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+    const [reload, setReload] = useState(0);
     const pusher = new Pusher(pusherConfig.key, pusherConfig); // (1)
+
     useEffect(()=>{
-        const discussionChannel = pusher.subscribe('discussion.'+discussionId);
+        const discussionChannel = pusher.subscribe('discussion.' + discussionId);
         discussionChannel.bind('pusher:subscription_succeeded', () => { // (3)
         console.log('connected');
         });
@@ -58,22 +59,22 @@ const Details = ({route,navigation}) => {
         });
         setSocketChanel(discussionChannel);
     return ()=>{
-        pusher.unsubscribe('discussion.'+discussionId);
+        pusher.unsubscribe('discussion.' + discussionId);
         //setDiscussionAnswers([]);
     }
     },[]);
 
     useEffect(()=>{
-     if(Object.keys(socketData).length && nexPageUrl === null){
-        let DA = {...discussionAnswers}
-        let da_data = DA.data; 
+     if(Object.keys(socketData).length && nextPageUrl === null){
+        let DA = {...discussionAnswers};
+        let da_data = DA.data;
         da_data.push(socketData);
         DA.data = da_data;
         setDiscussionAnswers(DA);
         setNewAnswerAdded({state:true,participant:socketData.participant});
         setSocketData({});
      }
-     else if(Object.keys(socketData).length && nexPageUrl !== null){
+     else if(Object.keys(socketData).length && nextPageUrl !== null){
        setNewAnswerAdded({state:true,participant:socketData.participant})
        setSocketData({});
      }
@@ -90,7 +91,8 @@ const Details = ({route,navigation}) => {
         axios.get(global.APILink+'/discussion/details/'+discussionId)
         .then(res=>{
             //console.log(res.data)
-            if(res.data.status === 'success'){
+            setRefreshing(false);
+            if (res.data.status === 'success'){
                 setDiscussionDetails(res.data.discussion);
                 let v_c = {vote:res.data.discussion[0].vote,comment:res.data.discussion[0].comment};
                 setDiscussionVotes(res.data.discussion[0].votes);
@@ -101,9 +103,37 @@ const Details = ({route,navigation}) => {
                 setIsLoading(false);
             }
         })
-        .catch(err=>console.log(err))
+        .catch(err=>console.log(err));
 
-    },[discussionId]);
+    },[discussionId, reload]);
+
+    useEffect(()=>{
+        if (isLoadingMore && nextPageUrl){
+          //console.log(nextPageUrl);
+          axios.get(nextPageUrl)
+          .then(res=>{
+            if (res.data.status === 'success'){
+             //console.log(res.data.answers.data);
+              let discussionAnswersData = discussionAnswers;
+              discussionAnswersData.data = [...discussionAnswersData.data,...res.data.answers.data];
+              setDiscussionAnswers(discussionAnswersData);
+              setNextPageUrl(res.data.answers.next_page_url);
+              setIsLoadingMore(false);
+            }
+          })
+          .catch(err=>{console.log(err);});
+        }
+      },[isLoadingMore]);
+
+      const handleScroll = ({layoutMeasurement, contentOffset, contentSize})=>{
+        const paddingToBottom = 20;
+        if ( layoutMeasurement.height + contentOffset.y >=
+          contentSize.height - paddingToBottom){
+          if (nextPageUrl){
+            setIsLoadingMore(true);
+          }
+          }
+      };
 
     useEffect(()=>{
         if(discussionDetails[0]){
@@ -138,32 +168,32 @@ const Details = ({route,navigation}) => {
             formData.append('answer_text',answerText);
             formData.append('answer_duration',answerDuration);
             setIsSubmitting(true);
-            axios.post(global.APILink+'/discussion/answer',formData)
+            axios.post(global.APILink + '/discussion/answer',formData)
             .then(res=>{
                 //console.log(res.data);
-                setIsSubmitting(false)
-                if(res.data.status === 'success'){
+                setIsSubmitting(false);
+                if (res.data.status === 'success'){
                     closeRecordingModal();
                 }
             })
             .catch(err=>{console.log(err);setIsSubmitting(false);})
         }
-    }
+    };
     const micPressHandler = ()=>{
         setShowRecordingModal(true);
         recordVoice();
-    }
+    };
 
     useEffect(()=>{
-        if(recording !== undefined){
+        if (recording !== undefined){
           let time = {...recordingTime};
            interval.current = setInterval(() => {
-              if(time.ts<=allowedTime){
-                  time.ts +=1;
+              if (time.ts <= allowedTime){
+                  time.ts += 1;
                   let minutes = Math.floor(time.ts / 60);
                   let seconds = time.ts % 60;
                   time.m = minutes;
-                  time.s =seconds;
+                  time.s = seconds;
                   setRecordingTime(prevTime=>({m:minutes,s:seconds,ts:prevTime.ts+1}));
               }
               else{
@@ -195,16 +225,16 @@ const Details = ({route,navigation}) => {
           console.error('Failed to start recording', err);
         }
       }
-      
-      const reRecordVoice =()=>{
+
+      const reRecordVoice = ()=>{
         setAnswerVoice('');
         recordVoice();
-      }
+      };
       async function stopRecording() {
         clearInterval(interval.current);
         //console.log('Stopping recording..');
         await recording.stopAndUnloadAsync();
-        const uri = recording.getURI(); 
+        const uri = recording.getURI();
         setAnswerVoice(uri);
        // console.log('Recording stopped and stored at', uri);
         recording.getStatusAsync()
@@ -226,19 +256,18 @@ const Details = ({route,navigation}) => {
         setRecordingTime(RT);
       }
 
-    const closeRecordingModal=()=>{
+    const closeRecordingModal = ()=>{
         setAnswerVoice('');
         setAnswerText('');
         setAnswerDuration(0);
         setValidation({voiceValidation:'',textValidation:''});
         setShowRecordingModal(false);
-    }
+    };
 
-    const isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) => {
-        const paddingToBottom = 20;
-        return layoutMeasurement.height + contentOffset.y >=
-          contentSize.height - paddingToBottom;
-      };
+    const onRefresh = ()=>{
+    setReload(reload + 1);
+    setRefreshing(true);
+    };
 
     return (
         <ActiveTypeContextProvider>
@@ -253,12 +282,13 @@ const Details = ({route,navigation}) => {
                     }
                     {
                     !isLoading && <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false} 
-                    onScroll={({nativeEvent}) => {
-                        console.log('scroll');
-                    if (isCloseToBottom(nativeEvent)) {
-                        console.log('bottom')
-                    }
-                    }}
+                    onScroll={({nativeEvent})=>{handleScroll(nativeEvent);}}
+                    refreshControl={
+                        <RefreshControl
+                          refreshing={refreshing}
+                          onRefresh={onRefresh}
+                        />
+                      }
                     >
                         <View style={[styles.cardHolder,{}]}>
                             <View style={styles.topSection}>
@@ -310,10 +340,12 @@ const Details = ({route,navigation}) => {
                                             <Icon type="evilicon" name="like" color="#333333" size={30} onPress={()=>{}} style={styles.playIcon}/>
                                     </View> */}
                                 </View>
-                                )
+                                );
                             })
-                        } 
-                        
+                        }
+                        {
+                            isLoadingMore && <ActivityIndicator size="small" color="#496076" />
+                        }
                         <View style={{height:100}}></View>
                     </ScrollView>
                     }

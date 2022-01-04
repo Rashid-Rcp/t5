@@ -1,31 +1,47 @@
 import React,{useEffect, useState, useContext} from 'react'
-import { View, Text,Image,StyleSheet ,ScrollView, TouchableOpacity} from 'react-native';
+import { View, Text,Image,StyleSheet ,ScrollView, TouchableOpacity, RefreshControl} from 'react-native';
 import axios from 'axios';
 import { Icon } from 'react-native-elements';
 
 const ClubDetails = ({navigation, route}) => {
     const {clubId} = route.params;
-    const[clubDetails, setClubDetails] = useState([]);
-    const[discussion, setDiscussion] =useState([]);
-    const[members, setMembers] = useState([]);
-    const[nextPageUrl,setNextPageUrl] = useState(null);
+    const [clubDetails, setClubDetails] = useState([]);
+    const [discussion, setDiscussion] = useState([]);
+    const [members, setMembers] = useState([]);
+    const [nextPageUrl, setNextPageUrl] = useState(null);
+    const [refreshing, setRefreshing] = useState(false);
+    const [reload, setReload] = useState(0);
+
 
     useEffect(()=>{
-        axios.get(global.APILink+'/club/'+clubId)
+        axios.get(global.APILink + '/club/' + clubId)
         .then(res=>{
            // console.log(res.data);
-            if(res.data.status === 'success'){
+            if (res.data.status === 'success'){
+                setRefreshing(false);
                 setClubDetails(res.data.clubDetails);
                 setDiscussion(res.data.latest);
                 setMembers(res.data.members.data);
             }
         })
         .catch(err=>{console.log(err)})
-    },[])
-   
+    },[reload]);
+
+    const onRefresh = ()=>{
+        setRefreshing(true);
+        setReload(reload + 1);
+    };
+
     return (
         <View style={styles.mainContainer}>
-            <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
+            <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}
+            refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                />
+              }
+            >
                 <View style={styles.clubDetails}>
                     <View style={styles.clubDetailsSec1}>
                         <Image
@@ -55,10 +71,12 @@ const ClubDetails = ({navigation, route}) => {
                     discussion &&  <View style={styles.discussionHolder}>
                     <View style={styles.discussionHeader}>
                         <Text style={styles.discussionTitle}>{clubDetails.discussions} Discussions</Text>
-                        <Icon type="feather" name="external-link" size={20} color="#496076" />
+                        <TouchableOpacity onPress={()=>{navigation.navigate('ClubDiscussions',{clubId:clubId});}}>
+                        <Icon type="feather" name="external-link" size={25} color="#496076" />
+                        </TouchableOpacity>
                     </View>
                     <View style={styles.discussion}>
-                        <TouchableOpacity onPress={()=>{navigation.navigate('DiscussionDetails',{discussionId:discussion.id})}}>
+                        <TouchableOpacity onPress={()=>{navigation.navigate('DiscussionDetails',{discussionId:discussion.id});}}>
                             <Text style={styles.itemTitle}>{discussion.topic}</Text>
                             <View style={styles.itemMeta}>
                                 <Text style={styles.metaText}>{discussion.time}</Text>

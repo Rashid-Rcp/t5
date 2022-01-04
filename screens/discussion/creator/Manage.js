@@ -1,5 +1,5 @@
 import React,{useEffect, useState} from 'react'
-import { View, Text,StyleSheet,StatusBar,ScrollView,Image ,TouchableOpacity, ActivityIndicator} from 'react-native';
+import { View, Text,StyleSheet,StatusBar,ScrollView,Image ,TouchableOpacity, ActivityIndicator, RefreshControl} from 'react-native';
 import {Button} from 'react-native-elements';
 import Header from '../../../screens/common/Header';
 import VoicePlayer from '../../common/voicePlayer/VoicePlayer';
@@ -9,17 +9,26 @@ const Manage = ({route,navigation}) => {
 
     const {discussion} = route.params;
     const [discussionData, setDiscussionData] = useState({});
-    const[isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
+    const [refresh, setRefresh] = useState(true);
+
     useEffect(()=>{
-        axios.get(global.APILink+'/discussion/manage/'+discussion)
-        .then(res=>{
-            if(res.data.status === 'success'){
-                setDiscussionData(res.data.data);
-                setIsLoading(false); 
-            }
-        })
-        .catch(err=>{console.log(err);setIsLoading(false)})
-    },[discussion])
+        if (refresh){
+            axios.get(global.APILink + '/discussion/manage/' + discussion)
+            .then(res=>{
+                if (res.data.status === 'success'){
+                    setDiscussionData(res.data.data);
+                    setIsLoading(false);
+                    setRefresh(false);
+                }
+            })
+            .catch(err=>{console.log(err); setIsLoading(false);});
+        }
+    },[discussion, refresh]);
+
+    const onRefresh = ()=>{
+        setRefresh(true);
+    };
     
     return (
         <View style={styles.mainContainer}>
@@ -31,7 +40,13 @@ const Manage = ({route,navigation}) => {
             </View>
             }
             {
-            !isLoading && <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
+            !isLoading && <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}
+            refreshControl={
+                <RefreshControl
+                  refreshing={refresh}
+                  onRefresh={onRefresh}
+                />}
+            >
             <View style={[styles.holder,{marginTop:15}]}> 
                 <Text style={styles.club}>
                     @{discussionData[0].club}
