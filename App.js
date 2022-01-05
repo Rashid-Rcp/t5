@@ -10,6 +10,7 @@ import {default as ManageDiscussion} from './screens/discussion/creator/Manage'
 import {default as CreatorAllComments} from './screens/discussion/creator/AllComments'
 import {default as ClubDetails} from './screens/club/ClubDetails';
 import {default as ClubList} from './screens/club/ClubList';
+import {default as ClubMembers} from './screens/club/ClubMembers';
 import {default as ClubDiscussions} from './screens/club/ClubDiscussions';
 import EditProfile from './screens/account/EditProfile';
 import  {default as PublicProfile} from './screens/account/PublicProfile';
@@ -19,6 +20,7 @@ import ClubForm from './screens/common/club/ClubForm';
 import { UserProvider } from './context/UserContext';
 import * as SecureStore from 'expo-secure-store';
 const DiscussionStack = createNativeStackNavigator();
+const AccountStack = createNativeStackNavigator();
 const DiscussionCreatorStack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -60,16 +62,16 @@ function discussionStackScreen(){
 
 function accountStackScreen(){
   return(
-    <DiscussionStack.Navigator>
-      <DiscussionStack.Screen name="AccountMain"  component={Account} options={{headerShown:false}}/>
-      <DiscussionStack.Screen name="ClubList" component={ClubList}  options={{title:"Clubs", headerStyle: {
+    <AccountStack.Navigator>
+      <AccountStack.Screen name="AccountMain"  component={Account} options={{headerShown:false}}/>
+      <AccountStack.Screen name="ClubList" component={ClubList}  options={{title:"Clubs", headerStyle: {
               backgroundColor: '#496076',
             },
             headerTintColor: '#c1f1dc',
             headerTitleStyle: {
               color:'#c1f1dc',
             },}}/>
-      <DiscussionStack.Screen name="ClubDetails" component={ClubDetails}
+      <AccountStack.Screen name="ClubDetails" component={ClubDetails}
         options={{title:"Club details", headerStyle: {
               backgroundColor: '#496076',
             },
@@ -77,7 +79,7 @@ function accountStackScreen(){
             headerTitleStyle: {
               color:'#c1f1dc',
             },}}/>
-      <DiscussionStack.Screen name="EditProfile" component={EditProfile} 
+      <AccountStack.Screen name="EditProfile" component={EditProfile} 
         options={{title:"Edit profile", headerStyle: {
               backgroundColor: '#496076',
             },
@@ -85,7 +87,7 @@ function accountStackScreen(){
             headerTitleStyle: {
               color:'#c1f1dc',
             },}}/>
-      <DiscussionStack.Screen name="PublicProfile" component={PublicProfile} 
+      <AccountStack.Screen name="PublicProfile" component={PublicProfile} 
         options={{title:"Profile", headerStyle: {
               backgroundColor: '#496076',
             },
@@ -93,9 +95,17 @@ function accountStackScreen(){
             headerTitleStyle: {
               color:'#c1f1dc',
             },}}/>
-      <DiscussionStack.Screen name="DiscussionDetails" component={DiscussionDetails} options={{headerShown:false}}/>
-      <DiscussionStack.Screen name="ClubDiscussions" component={ClubDiscussions}
+      <AccountStack.Screen name="DiscussionDetails" component={DiscussionDetails} options={{headerShown:false}}/>
+      <AccountStack.Screen name="ClubDiscussions" component={ClubDiscussions}
       options={{title:'Club discussions', headerStyle: {
+        backgroundColor: '#496076',
+      },
+      headerTintColor: '#c1f1dc',
+      headerTitleStyle: {
+        color:'#c1f1dc',
+      },}}/>
+      <AccountStack.Screen name="ClubMembers" component={ClubMembers}
+      options={{title:'Club members', headerStyle: {
         backgroundColor: '#496076',
       },
       headerTintColor: '#c1f1dc',
@@ -104,7 +114,7 @@ function accountStackScreen(){
       },}}/>
 
 
-    </DiscussionStack.Navigator>
+    </AccountStack.Navigator>
   )
 }
 

@@ -8,7 +8,6 @@ const ClubDetails = ({navigation, route}) => {
     const [clubDetails, setClubDetails] = useState([]);
     const [discussion, setDiscussion] = useState([]);
     const [members, setMembers] = useState([]);
-    const [nextPageUrl, setNextPageUrl] = useState(null);
     const [refreshing, setRefreshing] = useState(false);
     const [reload, setReload] = useState(0);
 
@@ -90,6 +89,9 @@ const ClubDetails = ({navigation, route}) => {
                 <View style={styles.memberHolder}>
                     <View style={styles.memberHeader}>
                         <Text style={styles.memberHeaderText}>{clubDetails.members} members</Text>
+                        <TouchableOpacity onPress={()=>{navigation.navigate('ClubMembers',{clubId:clubId});}}>
+                         <Icon type="feather" name="external-link" size={25} color="#496076" />
+                        </TouchableOpacity>
                     </View>
                     <View style={styles.memberList}>
                         {
@@ -100,9 +102,9 @@ const ClubDetails = ({navigation, route}) => {
                                         <Image 
                                             source={{uri:global.Link+'/images/'+member.image}}
                                             style={styles.userDp}
-                                        />
+                                        /> 
                                         <View style={{marginLeft:10}}>
-                                            <Text>{member.name}</Text>
+                                            <Text style={[styles.metaText,{fontSize:15}]}>{member.name}</Text>
                                             <Text style={styles.metaText}>{member.role}</Text>
                                         </View>
                                     </TouchableOpacity>
@@ -225,6 +227,8 @@ const styles = StyleSheet.create({
     memberHeader:{
         marginTop:10,
         marginBottom:20,
+        flexDirection:'row',
+        justifyContent:'space-between',
     },
     memberHeaderText:{
     color:'#333333',

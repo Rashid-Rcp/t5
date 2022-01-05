@@ -9,8 +9,7 @@ const PublicProfile = ({route}) => {
     useEffect(()=>{
         axios.get(global.APILink+'/user/public_data/'+profileId)
         .then(res=>{
-            console.log(res.data);
-            if(res.data.status==='success'){
+            if (res.data.status==='success'){
                 setProfile(res.data.profile);
             }
         })
