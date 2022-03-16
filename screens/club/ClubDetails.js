@@ -1,15 +1,18 @@
-import React,{useEffect, useState, useContext} from 'react'
+import React,{useEffect, useState, useContext} from 'react';
 import { View, Text,Image,StyleSheet ,ScrollView, TouchableOpacity, RefreshControl} from 'react-native';
 import axios from 'axios';
 import { Icon } from 'react-native-elements';
+import { UserContext } from '../../context/UserContext';
 
 const ClubDetails = ({navigation, route}) => {
+    const [user, setUser] = useContext(UserContext);
     const {clubId} = route.params;
     const [clubDetails, setClubDetails] = useState([]);
     const [discussion, setDiscussion] = useState([]);
     const [members, setMembers] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
     const [reload, setReload] = useState(0);
+    const [isMemeber, setIsMember] = useState(false);
 
 
     useEffect(()=>{
@@ -23,8 +26,47 @@ const ClubDetails = ({navigation, route}) => {
                 setMembers(res.data.members.data);
             }
         })
-        .catch(err=>{console.log(err)})
+        .catch(err=>{console.log(err);});
     },[reload]);
+
+    useEffect(() =>{
+        if (user.loaded && user.id !== '0'){
+            axios.post(global.APILink + '/club/is_member',{userId:user.id,clubId:clubId})
+            .then(res=>{
+                if (res.data.status === 'success'){
+                    if (res.data.member === 'yes') {
+                        setIsMember(true);
+                    }
+                    else {
+                        setIsMember(false);
+                    }
+                }
+            })
+            .catch(err=>{console.log(err);});
+        }
+    },[user]);
+
+    const leaveClub = ()=>{
+        axios.post(global.APILink + '/club/join_action',{userId:user.id,clubId:clubId, action:'leave'})
+        .then(res=>{
+            console.log(res.data);
+            if (res.data.status === 'success'){
+                setIsMember(false);
+            }
+        })
+        .catch(err=>{console.log(err);});
+    };
+
+    const joinClub = ()=>{
+        axios.post(global.APILink + '/club/join_action',{userId:user.id,clubId:clubId, action:'join'})
+        .then(res=>{
+            console.log(res.data);
+            if (res.data.status === 'success'){
+                setIsMember(true);
+            }
+        })
+        .catch(err=>{console.log(err);});
+    };
 
     const onRefresh = ()=>{
         setRefreshing(true);
@@ -55,9 +97,17 @@ const ClubDetails = ({navigation, route}) => {
                                     <Text style={styles.clubDiscussion}>{clubDetails.discussions??0} discussions</Text>
                                 </View>
                                 <View>
-                                    <TouchableOpacity style={styles.joinButton}>
+                                    {
+                                        isMemeber && <TouchableOpacity onPress={leaveClub} style={styles.leaveButton}>
+                                        <Text style={styles.joinText}>Leave</Text>
+                                    </TouchableOpacity>
+                                    }
+                                    {
+                                        !isMemeber && <TouchableOpacity onPress={joinClub} style={styles.joinButton}>
                                         <Text style={styles.joinText}>Join</Text>
                                     </TouchableOpacity>
+                                    }
+                                    
                                 </View>
                             </View>
                         </View>
@@ -130,6 +180,13 @@ const styles = StyleSheet.create({
     },
     joinButton:{
         backgroundColor:'#496076',
+        marginRight:10,
+        borderRadius:15,
+        paddingHorizontal:10,
+        paddingVertical:5,
+    },
+    leaveButton:{
+        backgroundColor:'#cf352e',
         marginRight:10,
         borderRadius:15,
         paddingHorizontal:10,

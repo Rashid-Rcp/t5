@@ -18,6 +18,8 @@ const Home = ({navigation}) => {
   const [refreshing, setRefreshing] = useState(false);
   const [reload, setReload] = useState(0);
 
+  console.log('home');
+
   useEffect(() => {
     if (user.loaded && user.id !== '0'){
       if (!participantFilter){
@@ -128,7 +130,7 @@ const Home = ({navigation}) => {
                   return(
                   <View key={discussion.id} style={styles.contentItem}>
                     <TouchableOpacity onPress={()=>{navigation.navigate('DiscussionDetails',{discussionId:discussion.id})}}>
-                      <Text style={styles.itemTitle}>{discussion.topic}</Text>
+                      <Text style={styles.itemTitle}>{discussion.topic} anf somen of thme are thinking its good idea to make it libt </Text>
                       {
                        discussion.participant !== 0 &&
                         <View style={styles.participant}><Text style={{color:"#405f74",fontSize:13}}>Participant</Text></View>
@@ -185,8 +187,10 @@ const styles = StyleSheet.create({
     contentItem:{
         backgroundColor:'#f7f7f7',
         borderRadius:20,
-        padding:10,
-        marginVertical:5,
+        paddingTop:20,
+        paddingBottom:10,
+        paddingHorizontal:10,
+        marginVertical:7,
       },
       itemTitle:{
         fontSize:17,

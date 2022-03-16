@@ -1,22 +1,33 @@
-import React from 'react'
-import { View, Text, StyleSheet, Image,TouchableOpacity } from 'react-native'
-import { Icon } from 'react-native-elements'
+import React,{useContext} from 'react';
+import { View, Text, StyleSheet, Image,TouchableOpacity } from 'react-native';
+import { Icon } from 'react-native-elements';
+import { UserContext } from '../../context/UserContext';
+
 const Header = ({navigation, userData}) => {
+    const [user, setUser ] = useContext(UserContext);
+       const navigationHandler = ()=>{
+        if (user.activeTab === 'discussionCreator'){
+            navigation.navigate('DiscussionCreator');
+        }
+        else {
+            navigation.navigate('Discussion');
+        }
+    };
     return (
-        
         <View style={styles.container}>
-           <TouchableOpacity onPress={()=>navigation.goBack()} style={{flexDirection:'row'}} >
+           <TouchableOpacity onPress={navigationHandler} style={{flexDirection:'row'}} >
             <Icon
                 name='ios-chevron-back-outline'
                 type='ionicon'
                 color='#c1f1dc'
                 />
-                <Text style={styles.accountName}>{userData.name}</Text>
+                {
+                    userData && <Text style={styles.accountName}>{userData.name}</Text>
+                }
             </TouchableOpacity>
         </View>
-        
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     container:{
@@ -25,7 +36,7 @@ const styles = StyleSheet.create({
         paddingRight:10,
         paddingVertical:5,
         flexDirection:'row',
-        justifyContent:'flex-start',
+        justifyContent:'space-between',
         alignItems:'center',
         height:55,
     },

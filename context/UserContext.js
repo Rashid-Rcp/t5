@@ -2,7 +2,7 @@ import React,{useState, createContext, useEffect} from 'react'
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
 
-const AccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'
+const AccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9';
 axios.interceptors.request.use(
     config=>{
         config.headers.authorization = `Bearer ${AccessToken}`;
@@ -33,9 +33,10 @@ export const UserProvider = (props)=>{
                 const discussionMode = await SecureStore.getItemAsync('t5_discussion_mode');
                 const activeTab = await SecureStore.getItemAsync('t5_active_tab');
                 let userData = {...user};
-                
+        
                 if(user_id){
-                    userData.id = user_id;
+                   userData.id = user_id;
+                   // userData.id = '0';
                    await axios.get(global.APILink+'/user/club/'+user_id)
                     .then(res=>{
                         if(res.data.status === 'success'){

@@ -153,8 +153,8 @@ export default function App() {
     <NavigationContainer>
       <Tab.Navigator tabBar={()=>{}}>
         <Tab.Screen name="Initial" component={initial==='discussionNormal'?discussionStackScreen:discussionCreatorStackScreen} options={{headerShown:false}}/>
-        <Tab.Screen name="Discussion" component={discussionStackScreen} options={{headerShown:false}}/>
         <Tab.Screen name="DiscussionCreator" component={discussionCreatorStackScreen} options={{headerShown:false}}/>
+        <Tab.Screen name="Discussion" component={discussionStackScreen} options={{headerShown:false}}/>
         <Tab.Screen name="Account" component={accountStackScreen} options={{headerShown:false}}/>
       </Tab.Navigator>
     </NavigationContainer>

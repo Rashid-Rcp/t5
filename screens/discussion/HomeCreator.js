@@ -15,12 +15,16 @@ const HomeCreator = ({navigation}) => {
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [reload, setReload] = useState(0);
-    
+
+console.log('creator');
+
     useEffect(()=>{
-        if(user.loaded && user.club === false){
+        if (user.loaded && user.id !== '0' && user.club === false){
             navigation.navigate('CreateClub',{backTo:'DiscussionCreatorHome'});
         }
     },[user]);
+    
+    console.log(user);
 
     useEffect(()=>{
         if(user.loaded && user.club === true){
@@ -76,11 +80,11 @@ const HomeCreator = ({navigation}) => {
 
 
     if(!user.loaded){
-        return (<View style={{flex:1,justifyContent:'center',alignItems:'center',backgroundColor:'#d0dce7'}}>
+        return (<View style={{flex:1 ,justifyContent:'center',alignItems:'center',backgroundColor:'#d0dce7'}}>
         <Text>Loading...</Text>
         </View>);
     }
-    if( user.loaded && user.id==='0'){
+    if( user.loaded && user.id === '0'){
       return (
         <View style={styles.mainContainer}>
           <StatusBar />
@@ -116,7 +120,7 @@ const HomeCreator = ({navigation}) => {
                         return(
                             <View key={index} style={styles.topicHolder}>
                                 <Text style={styles.topicTitle}>
-                                  {discussion.topic}  
+                                  {discussion.topic}
                                 </Text>
                                 <View style={styles.topicMetaHolder}>
                                     <View style={styles.topicStatus}>
@@ -173,7 +177,7 @@ const HomeCreator = ({navigation}) => {
   
 }
 
-export default HomeCreator
+export default HomeCreator;
 const styles = StyleSheet.create({
     mainContainer:{
         backgroundColor:'#d0dce7',

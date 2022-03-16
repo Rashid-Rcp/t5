@@ -86,6 +86,5 @@ const styles = StyleSheet.create({
     about:{
         paddingHorizontal:10,
         color:'#333333'
-    }
-
+    },
 });
