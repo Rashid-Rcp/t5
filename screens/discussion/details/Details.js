@@ -44,9 +44,9 @@ const Details = ({route,navigation}) => {
     const pusher = new Pusher(pusherConfig.key, pusherConfig); // (1)
 
     useEffect(()=>{
-        const discussionChannel = pusher.subscribe('discussion.' + discussionId);
+        const discussionChannel = pusher.subscribe('discussion.' + discussionId); //2
         discussionChannel.bind('pusher:subscription_succeeded', () => { // (3)
-        console.log('connected');
+        console.log('socket connected');
         });
         discussionChannel.bind('discussion.answer', function (data) {
             setSocketData(data.answer);

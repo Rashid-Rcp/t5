@@ -38,6 +38,7 @@ const AddNew = ({navigation}) => {
     useEffect(()=>{
         axios.get(global.APILink+'/user_clubs/'+user.id)
         .then(res=>{
+            console.log(res.data);
             if(res.data.status==='success'){
                 setUserClubs(res.data.clubs);
             }else{
